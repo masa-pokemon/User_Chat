@@ -7,7 +7,8 @@ RUN apt-get install -y python3-pip python3-dev
 
 RUN pip3 install --upgrade pip
 COPY requirements.txt /tmp/requirements.txt
-RUN pip install -r requirements.txt
+RUN pip install st_pages
+RUN pip install st_pages
 RUN streamlit run src/01_login.py
 
 WORKDIR /home/workspace
