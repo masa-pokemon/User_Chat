@@ -1,6 +1,5 @@
 # This page is used to login to the application
 import streamlit as st
-from st_pages import add_page_title
 import argparse
 import const
 from modules import common
@@ -9,7 +8,6 @@ from modules.database import database
 
 # Setting page title
 common.set_pages()
-add_page_title()
 
 # Get the command line arguments
 parser = argparse.ArgumentParser(
