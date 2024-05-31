@@ -7,8 +7,7 @@ RUN apt-get install -y python3-pip python3-dev
 
 RUN pip3 install --upgrade pip
 COPY requirements.txt /tmp/requirements.txt
-RUN pip3 install -r requirements.txt
-RUN pip3 uninstall -r requirements.txt
-RUN pip freeze > requirements.txt
+RUN pip install -r requirements.txt
+RUN streamlit run src/01_login.py
 
 WORKDIR /home/workspace
