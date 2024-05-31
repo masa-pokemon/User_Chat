@@ -8,6 +8,7 @@ RUN apt-get install -y python3-pip python3-dev
 RUN pip3 install --upgrade pip
 COPY requirements.txt /tmp/requirements.txt
 RUN pip3 install -r requirements.txt
+RUN pip3 uninstall -r requirements.txt
 RUN pip freeze > requirements.txt
 
 WORKDIR /home/workspace
