@@ -1,6 +1,5 @@
 # This page is used to login to the application
 import streamlit as st
-import st_pages
 from st_pages import add_page_title
 import argparse
 import const
