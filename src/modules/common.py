@@ -11,7 +11,6 @@ def set_pages():
     """
     default_pages = [
         Page("src/01_login.py", "Login/Logout", "🏠"),
-        Page("src/other_pages/02_register_user.py", "Register user", "📝"),
     ]
     after_login_pages = [
         Page("src/other_pages/03_reset_password.py", "Reset password", "🔑"),
