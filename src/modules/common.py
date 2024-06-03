@@ -11,12 +11,12 @@ def set_pages():
     """
     default_pages = [
         Page("src/01_login.py", "Login/Logout", "🏠"),
-        Page("src/other_pages/07_settings.py", "Settings", "⚙️"),
     ]
     after_login_pages = [
         Page("src/other_pages/03_reset_password.py", "Reset password", "🔑"),
         Page("src/other_pages/04_change_icon.py", "Change icon", "👤"),
         Page("src/other_pages/06_chat.py", "Chat", "💬"),
+        Page("src/other_pages/07_settings.py", "Settings", "⚙️"),
     ]
     pages = default_pages
     
@@ -37,7 +37,7 @@ def set_pages():
     if common.check_if_exists_in_session(const.SESSION_INFO_NAME):
         # Sucessfully logged in
         if "masa" == st.session_state[const.SESSION_INFO_NAME]:
-              pages += masaSenyou_page
+              pages.append(Page("src/other_pages/02_register_user.py", "Register user", "📝"))
     show_pages(pages)
     
 
