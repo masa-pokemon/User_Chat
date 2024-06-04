@@ -15,7 +15,8 @@ from modules.database import database
 username = st.session_state[const.SESSION_INFO_USERNAME]
 if username == "masapokemon" or username == "suzuki" or username == "Suzuki" or username == "Yahata" or username == "yahata" or username == "Sakoda" or username == "sakoda" :
     if Chat_ID := st.chat_input("chatID"):
-        print("ok")
+        if Chat_ID != "" :
+            print("ok")
 else:
     CHAT_ID = ""
 persona = None
