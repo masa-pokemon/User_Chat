@@ -51,8 +51,10 @@ if (
     user_infos = {}
     username = st.session_state[const.SESSION_INFO_USERNAME]
     name = st.session_state[const.SESSION_INFO_NAME]
+
+    if username == "suzuki" or username == "yahata" or username == "sakoda" :
+        CHAT_ID = "10"
     
-    CHAT_ID = st.chat_input("ID")
     user_msg = st.chat_input("Enter your message")
 
         
