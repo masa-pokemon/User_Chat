@@ -52,7 +52,7 @@ if (
     username = st.session_state[const.SESSION_INFO_USERNAME]
     name = st.session_state[const.SESSION_INFO_NAME]
     
-    CHAT_ID = st.text_input("chatIDを入力してください。"):
+    CHAT_ID = st.chat_input("chatIDを入力してください。")
     user_msg = st.chat_input("Enter your message")
 
         
