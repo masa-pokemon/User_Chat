@@ -11,7 +11,6 @@ from modules import common
 from modules.authenticator import common_auth
 from modules.database import database
 
-CHAT_ID = st.chat_input("chatIDを入力してください。")
 persona = None
 llm = None
 use_chatbot = False
@@ -51,6 +50,7 @@ if (
     user_infos = {}
     username = st.session_state[const.SESSION_INFO_USERNAME]
     name = st.session_state[const.SESSION_INFO_NAME]
+    CHAT_ID = st.chat_input("chatIDを入力してください。")
     user_msg = st.chat_input("Enter your message")
 
     # Show old chat messages
