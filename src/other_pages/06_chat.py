@@ -12,6 +12,7 @@ from modules.authenticator import common_auth
 from modules.database import database
 
 CHAT_ID = "0"
+CHAT_ID = st.chat_input("Enter your message")
 persona = None
 llm = None
 use_chatbot = False
