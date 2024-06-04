@@ -54,7 +54,7 @@ if (
 
     if username == "suzuki" or username == "Suzuki" or username == "Yahata" or username == "yahata" or username == "Sakoda" or username == "sakoda" :
         CHAT_ID = st.chat_input("ChatID")
-    #user_msg = st.chat_input("Enter your message")
+    user_msg = st.chat_input("Enter your message")
 
         
     # Show old chat messages
