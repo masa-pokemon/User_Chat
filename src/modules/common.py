@@ -17,7 +17,7 @@ def set_pages():
         Page("src/other_pages/03_reset_password.py", "Reset password", "🔑"),
         Page("src/other_pages/04_change_icon.py", "Change icon", "👤"),
         Page("src/other_pages/06_chat.py", "Chat", "💬"),
-        Page("src/other_pages/07_settings.py", "Settings", "⚙️"),
+        #Page("src/other_pages/07_settings.py", "Settings", "⚙️"),
     ]
     pages = default_pages
     
