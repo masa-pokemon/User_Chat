@@ -12,6 +12,7 @@ from modules.authenticator import common_auth
 from modules.database import database
 
 
+username = st.session_state[const.SESSION_INFO_USERNAME]
 if username == "suzuki" or username == "Suzuki" or username == "Yahata" or username == "yahata" or username == "Sakoda" or username == "sakoda" :
     Chat_ID = st.chat_input("chatID")
 else:
