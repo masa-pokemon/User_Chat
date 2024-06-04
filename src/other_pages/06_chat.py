@@ -13,7 +13,9 @@ from modules.database import database
 
 
 if username == "suzuki" or username == "Suzuki" or username == "Yahata" or username == "yahata" or username == "Sakoda" or username == "sakoda" :
-    CHAT_ID = st.chat_input("ChatID")
+    Chat_ID = st.chat_input("chatID")
+else:
+    CHAT_ID = ""
 persona = None
 llm = None
 use_chatbot = False
@@ -58,8 +60,10 @@ if (
 
         
     # Show old chat messages
-    chat_log = db.get_chat_log(chat_id=CHAT_ID, limit=const.MAX_CHAT_LOGS)
-    
+    if username == "suzuki" or username == "Suzuki" or username == "Yahata" or username == "yahata" or username == "Sakoda" or username == "sakoda" :
+        chat_log = db.get_chat_log(chat_id=Chat_ID, limit=const.MAX_CHAT_LOGS)
+    else:
+        chat_log = db.get_chat_log(chat_id=CHAT_ID, limit=const.MAX_CHAT_LOGS)
     if chat_log is not None:
         for msg_info in chat_log:
             log_chat_id, log_username, log_name, log_message, log_sent_time = msg_info
@@ -111,13 +115,22 @@ if (
     # Show user message
     if user_msg:
         # Show new chat message
-        db.insert_chat_log(
-            chat_id=CHAT_ID,
-            username=username,
-            name=name,
-            message=user_msg,
-            sent_time=datetime.datetime.now(),
-        )
+        if username == "suzuki" or username == "Suzuki" or username == "Yahata" or username == "yahata" or username == "Sakoda" or username == "sakoda" :
+            db.insert_chat_log(
+                chat_id=Chat_ID,
+                username=username,
+                name=name,
+                message=user_msg,
+                sent_time=datetime.datetime.now(),
+            )
+        else:
+            db.insert_chat_log(
+                chat_id=CHAT_ID,
+                username=username,
+                name=name,
+                message=user_msg,
+                sent_time=datetime.datetime.now(),
+            )
         if username not in user_infos:
             # Get user info
             tmp_user_info = db.get_user_info(username)
