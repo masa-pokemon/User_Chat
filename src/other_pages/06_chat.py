@@ -63,7 +63,7 @@ if (
 
         
     # Show old chat messages
-    if username == "suzuki" or username == "Suzuki" or username == "Yahata" or username == "yahata" or username == "Sakoda" or username == "sakoda" :
+    if username == "suzuki" or username == "suzuki" or username == "Suzuki" or username == "Yahata" or username == "yahata" or username == "Sakoda" or username == "sakoda" :
         chat_log = db.get_chat_log(chat_id=Chat_ID, limit=const.MAX_CHAT_LOGS)
     else:
         chat_log = db.get_chat_log(chat_id=CHAT_ID, limit=const.MAX_CHAT_LOGS)
