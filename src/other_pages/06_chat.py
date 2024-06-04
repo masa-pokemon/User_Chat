@@ -97,7 +97,6 @@ if (
                                 "content": log_name + " said " + log_message,
                             }
                         )
-                        st.warning('通知が来ました', icon="⚠️")
                     if len(messages) > const.MAX_CONVERSATION_BUFFER:
                         messages.pop(1)
 
