@@ -11,7 +11,7 @@ from modules import common
 from modules.authenticator import common_auth
 from modules.database import database
 
-CHAT_ID = ""
+CHAT_ID = "0"
 persona = None
 llm = None
 use_chatbot = False
@@ -52,8 +52,8 @@ if (
     username = st.session_state[const.SESSION_INFO_USERNAME]
     name = st.session_state[const.SESSION_INFO_NAME]
 
-    if username == "suzuki" or username == "yahata" or username == "sakoda" :
-        CHAT_ID = "10"
+    if username == "suzuki" or username == "Suzuki" or username == "Yahata" or username == "yahata" or username == "Sakoda" or username == "sakoda" :
+        CHAT_ID = st.text_input("chatID")
     
     user_msg = st.chat_input("Enter your message")
 
