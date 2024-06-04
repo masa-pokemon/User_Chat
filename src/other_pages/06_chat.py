@@ -53,7 +53,7 @@ if (
     name = st.session_state[const.SESSION_INFO_NAME]
 
     if username == "suzuki" or username == "Suzuki" or username == "Yahata" or username == "yahata" or username == "Sakoda" or username == "sakoda" :
-        CHAT_ID = "1"
+        CHAT_ID = ""
     
     user_msg = st.chat_input("Enter your message")
 
