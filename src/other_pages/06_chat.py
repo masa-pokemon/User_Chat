@@ -53,7 +53,8 @@ if (
     name = st.session_state[const.SESSION_INFO_NAME]
     user_msg = st.chat_input("Enter your message")
 
-    CHAT_ID = st.text_input("chatIDを入力してください。")
+    if CHAT_ID := st.text_input("chatIDを入力してください。"):
+        
     # Show old chat messages
     chat_log = db.get_chat_log(chat_id=CHAT_ID, limit=const.MAX_CHAT_LOGS)
     
