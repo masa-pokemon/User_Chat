@@ -11,7 +11,7 @@ from modules import common
 from modules.authenticator import common_auth
 from modules.database import database
 
-CHAT_ID = st.chat_input("chatIDを入力してください。")
+CHAT_ID = st.text_input("chatIDを入力してください。")
 persona = None
 llm = None
 use_chatbot = False
