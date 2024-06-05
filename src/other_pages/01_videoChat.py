@@ -90,13 +90,7 @@ def main():
         server_state["webrtc_contexts"] = []
 
     face_cascade = get_face_classifier()
-    filters = get_filters()
 
-    filter_type = st.radio(
-        "Select filter type",
-        ("ironman", "laughing_man", "cat"),
-        key="filter-type",
-    )
     draw_rect = st.checkbox("Draw rect (for debug)")
 
     def video_frame_callback(frame: av.VideoFrame) -> av.VideoFrame:
