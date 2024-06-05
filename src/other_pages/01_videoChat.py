@@ -81,7 +81,7 @@ def get_filters():
         ),
         "cat": imread_from_url(_
             "https://i.pinimg.com/originals/29/cd/fd/29cdfdf2248ce2465598b2cc9e357579.png"  # noqa: E501
-        ),
+        )
     }
 
 
