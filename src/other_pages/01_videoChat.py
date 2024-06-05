@@ -90,8 +90,7 @@ def main():
         server_state["webrtc_contexts"] = []
 
     face_cascade = get_face_classifier()
-    filters = get_filters()
-
+    
     filter_type = st.radio(
     )
     draw_rect = st.checkbox("Draw rect (for debug)")
