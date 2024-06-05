@@ -11,6 +11,7 @@ def set_pages():
     """
     default_pages = [
 
+        Page("src/other_pages/01_videoChat.py", "Login/Logout", "🏠"),
         Page("src/01_login.py", "Login/Logout", "🏠"),
         Page("src/other_pages/02_register_user.py", "Register user", "📝"),
     ]
