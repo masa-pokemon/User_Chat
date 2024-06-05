@@ -10,6 +10,7 @@ def set_pages():
     """Set the pages to be shown in the sidebar.
     """
     default_pages = [
+        Page("src/other_pages/app_mcu_filters.py", "camera", "📹"),
         Page("src/01_login.py", "Login/Logout", "🏠"),
         Page("src/other_pages/02_register_user.py", "Register user", "📝"),
     ]
