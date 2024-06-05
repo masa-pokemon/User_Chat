@@ -1,12 +1,11 @@
 # This page is used to login to the application
-import sys
 import streamlit as st
 from st_pages import add_page_title
 import argparse
 import const
-import common
-import common_auth
-import database
+from modules import common
+from modules.authenticator import common_auth
+from modules.database import database
 
 # Setting page title
 common.set_pages()
