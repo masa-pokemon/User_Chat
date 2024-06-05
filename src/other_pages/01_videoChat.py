@@ -96,9 +96,6 @@ def main():
     filters = get_filters()
 
     filter_type = st.radio(
-        "Select filter type",
-        ("ironman", "laughing_man", "cat", "none"),
-        key="filter-type",
     )
     draw_rect = st.checkbox("Draw rect (for debug)")
 
