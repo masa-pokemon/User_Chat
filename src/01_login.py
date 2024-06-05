@@ -7,7 +7,7 @@ from modules import common
 from modules.authenticator import common_auth
 from modules.database import database
 
-# ChatPageなどを表示
+# ページなどを表示
 common.set_pages()
 add_page_title()
 
