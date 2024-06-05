@@ -20,5 +20,4 @@ def callback(frame):
 
 webrtc_streamer(
     key="input",
-    video_frame_callback=callback,
 )
