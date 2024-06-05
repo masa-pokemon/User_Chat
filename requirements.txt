@@ -6,4 +6,5 @@ st-pages==0.4.3
 watchdog==3.0.0
 numpy==1.25.0
 Pillow==9.5.0
+streamlit-webrtc
 openai
