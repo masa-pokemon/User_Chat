@@ -9,4 +9,5 @@ Pillow==9.5.0
 streamlit-webrtc
 streamlit-server-state 
 opencv-python-headless
+matplotlib
 openai
