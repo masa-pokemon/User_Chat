@@ -1,4 +1,4 @@
-# This page is used to login to the application
+#必要なライブラリをインポート
 import streamlit as st
 from st_pages import add_page_title
 import argparse
@@ -7,14 +7,15 @@ from modules import common
 from modules.authenticator import common_auth
 from modules.database import database
 
-# Setting page title
+# ChatPageなどを表示
 common.set_pages()
 add_page_title()
 
-# Get the command line arguments
+# コマンドを追加された時に使うメソッド
 parser = argparse.ArgumentParser(
     description="This page is used to login to the application",
 )
+#chatbotを追加
 parser.add_argument(
     "--use_chatbot",
     help="Use chatbot",
@@ -23,7 +24,7 @@ parser.add_argument(
 args = parser.parse_args()
 use_chatbot = args.use_chatbot
 
-# Update the use_chatbot setting
+# chatbotの設定
 db = database.Database()
 current_use_chatbot = db.get_openai_settings_use_character()
 if int(use_chatbot) != current_use_chatbot:
