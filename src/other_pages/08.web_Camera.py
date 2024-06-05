@@ -7,4 +7,3 @@ st.title('Streamlit App Test')
 st.write('Hello world')
 
 webrtc_streamer(key='example')
-ctx.video_processor.test_state = true
