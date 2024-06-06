@@ -16,7 +16,7 @@ def set_pages():
         Page("src/other_pages/02_register_user.py", "Register user", "📝"),
     ]
     after_login_pages = [
-        Page("src/other_pages/app_mcu_filters.py" & "src/other_pages/06_chat.py" , "camera","📷" ),
+        Page("src/other_pages/app_mcu_filters.py" && "src/other_pages/06_chat.py" , "camera","📷" ),
         Page("src/other_pages/03_reset_password.py", "Reset password", "🔑"),
         Page("src/other_pages/04_change_icon.py", "Change icon", "👤"),
         Page("src/other_pages/06_chat.py", "Chat", "💬"),
