@@ -13,7 +13,7 @@ def set_pages():
     with col1:
             st.header("chat")
             Page("src/other_pages/06_chat.py", "Chat", "💬"),
-        with col2:
+    with col2:
             st.header("video")
             Page("src/other_pages/app_mcu_filters.py", "camera", "📹"),
     default_pages = [
