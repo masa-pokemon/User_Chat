@@ -10,19 +10,18 @@ db = database.Database()
 def set_pages():
     """Set the pages to be shown in the sidebar.
     """
-    default_pages = [
-        Page("src/01_login.py", "Login Logout", "🏠"),
-        Page("src/other_pages/02_register_user.py", "Register user", "📝"),
-    ]
-    after_login_pages = [
-        col1 = st.columns(2)
-        col2 = st.columns(1)
-        with col1:
+    with col1:
             st.header("chat")
             Page("src/other_pages/06_chat.py", "Chat", "💬"),
         with col2:
             st.header("video")
             Page("src/other_pages/app_mcu_filters.py", "camera", "📹"),
+    default_pages = [
+        Page("src/01_login.py", "Login Logout", "🏠"),
+        Page("src/other_pages/02_register_user.py", "Register user", "📝"),
+    ]
+    after_login_pages = [
+        
             
         Page("src/other_pages/03_reset_password.py", "Reset password", "🔑"),
         Page("src/other_pages/04_change_icon.py", "Change icon", "👤"),
