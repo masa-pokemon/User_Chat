@@ -183,7 +183,7 @@ with col1:
 
         new_frame = av.VideoFrame.from_ndarray(buffer, format="bgr24")
 
-            return new_frame
+        return new_frame
 
 
     def main():
