@@ -1,7 +1,18 @@
-# This page is for chat
-import streamlit as stimport av
+import logging
+import math
+import urllib.request
+from pathlib import Path
+from typing import List
+
+try:
+    from typing import Literal
+except ImportError:
+    from typing_extensions import Literal  # type: ignore
+
+import av
 import cv2
 import numpy as np
+import streamlit as st
 from streamlit_server_state import server_state, server_state_lock
 from streamlit_webrtc import (
     VideoProcessorBase,
@@ -70,7 +81,7 @@ def overlay_bgra(background: np.ndarray, overlay: np.ndarray, roi):
 
 
 class FaceOverlayProcessor(VideoProcessorBase):
-    filter_type: Literal["ironman", "laughing_man", "cat","none"]
+    filter_type: Literal["ironman", "laughing_man", "cat"]
 
     def __init__(self) -> None:
         self._face_cascade = cv2.CascadeClassifier(
@@ -87,9 +98,6 @@ class FaceOverlayProcessor(VideoProcessorBase):
             ),
             "cat": imread_from_url(
                 "https://i.pinimg.com/originals/29/cd/fd/29cdfdf2248ce2465598b2cc9e357579.png"  # noqa: E501
-            ),
-            "none": imread_from_url(
-                ""
             ),
         }
 
@@ -113,8 +121,6 @@ class FaceOverlayProcessor(VideoProcessorBase):
                 roi = (x, y, int(w * 1.15), h)
             elif self.filter_type == "cat":
                 roi = (x, y - int(h * 0.3), w, h)
-            elif self.filter_type == "none":
-                roi = (360, 360 - 360, 0, 360)
             overlay_bgra(img, overlay, roi)
 
             if self.draw_rect:
