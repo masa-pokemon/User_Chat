@@ -8,7 +8,7 @@ try:
 except ImportError:
     from typing_extensions import Literal  # type: ignore
 
-import 06_chat
+import 06chat
 import av
 import cv2
 import numpy as np
