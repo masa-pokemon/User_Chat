@@ -3,12 +3,12 @@ import math
 import urllib.request
 from pathlib import Path
 from typing import List
-
 try:
     from typing import Literal
 except ImportError:
     from typing_extensions import Literal  # type: ignore
 
+import 06_chat
 import av
 import cv2
 import numpy as np
