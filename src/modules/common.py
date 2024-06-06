@@ -15,7 +15,8 @@ def set_pages():
         Page("src/other_pages/02_register_user.py", "Register user", "📝"),
     ]
     after_login_pages = [
-        col1, col2 = st.columns(2)
+        col1 = st.columns(2)
+        col2 = st.columns(1)
         with col1:
             st.header("chat")
             Page("src/other_pages/06_chat.py", "Chat", "💬"),
