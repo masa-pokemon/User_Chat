@@ -8,7 +8,6 @@ from modules.database import database
 db = database.Database()
 
 def set_pages():
-    col1, col2 = st.columns(2)
     """Set the pages to be shown in the sidebar.
     """
     default_pages = [
@@ -16,6 +15,7 @@ def set_pages():
         Page("src/other_pages/02_register_user.py", "Register user", "📝"),
     ]
     after_login_pages = [
+        col1, col2 = st.columns(2)
         with col1:
             st.header("chat")
             Page("src/other_pages/06_chat.py", "Chat", "💬"),
