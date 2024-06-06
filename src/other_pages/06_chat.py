@@ -293,21 +293,6 @@ if (
 ):
     messages = []
     # Check if chatbot is enabled
-    tmp_use_chatbot = db.get_openai_settings_use_character()
-    if tmp_use_chatbot == 1:
-        persona = db.get_character_persona()[0]
-        messages.append(
-            {"role": "system", "content": CHATBOT_PERSONA.format(persona=persona)}
-        )
-
-        # Get chatbot settings
-        openai_api_key = os.getenv("OPENAI_API_KEY")
-        if openai_api_key is None:
-            openai.api_key = openai_api_key
-            persona = None
-            st.error(
-                "OPENAI_API_KEY is not set in the environment variables. Please contact the administrator."
-            )
 
     user_infos = {}
     username = st.session_state[const.SESSION_INFO_USERNAME]
