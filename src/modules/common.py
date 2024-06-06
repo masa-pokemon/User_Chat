@@ -10,13 +10,20 @@ db = database.Database()
 def set_pages():
     """Set the pages to be shown in the sidebar.
     """
+    column1, column2 = st.columns(3)
+    
     default_pages = [
         Page("src/other_pages/app_mcu_filters.py", "camera","📷" ),
         Page("src/01_login.py", "Login Logout", "🏠"),
         Page("src/other_pages/02_register_user.py", "Register user", "📝"),
     ]
     after_login_pages = [
-        Page("src/other_pages/app_mcu_filters.py", "camera","📷" ),
+        with column1:
+            st.write('これはカラム1です。')
+            Page("src/other_pages/06_chat.py", "Chat", "💬"),
+        with column2:
+            st.write('これはカラム2です。')
+            Page("src/other_pages/app_mcu_filters.py", "camera","📷" )
             
         Page("src/other_pages/03_reset_password.py", "Reset password", "🔑"),
         Page("src/other_pages/04_change_icon.py", "Change icon", "👤"),
