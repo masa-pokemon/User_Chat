@@ -4,6 +4,14 @@ import const
 from modules import common
 from modules.database import database
 
+col1, col2 = st.columns(2)
+
+with col1:
+    st.header("chat")
+    Page("src/other_pages/06_chat.py", "Chat", "💬"),
+with col2:
+    st.header("video")
+    Page("src/other_pages/app_mcu_filters.py", "camera", "📹"),
 db = database.Database()
 
 def set_pages():
