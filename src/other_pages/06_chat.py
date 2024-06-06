@@ -155,8 +155,8 @@ with col1:
 
             for i in range(n_inputs):
                 frame = frames[i]
-            if frame is None:
-                continue
+                if frame is None:
+                    continue
 
             grid_x = (i % n_cols) * grid_w
             grid_y = (i // n_cols) * grid_h
