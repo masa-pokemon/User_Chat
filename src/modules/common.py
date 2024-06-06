@@ -13,7 +13,6 @@ def set_pages():
     column1, column2 = st.columns(3)
     
     default_pages = [
-        Page("src/other_pages/app_mcu_filters.py", "camera","📷" ),
         Page("src/01_login.py", "Login Logout", "🏠"),
         Page("src/other_pages/02_register_user.py", "Register user", "📝"),
     ]
