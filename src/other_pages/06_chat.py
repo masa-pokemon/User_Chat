@@ -32,7 +32,7 @@ from streamlit_webrtc import (
     create_process_track,
     webrtc_streamer,
 )
-col1, col2 = st.columns(2)
+col1, col2 = st.columns((2,3))
 with col1:
     
     logger = logging.getLogger(__name__)
