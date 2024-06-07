@@ -104,7 +104,7 @@ with col1:
             self.filter_type = "none"
             self._filters = { 
                 "none" : imread_from_url(
-                    ""
+                    "https://drive.google.com/file/d/1CeaTD5RI6lvnha6XcuJFP3Cf1TMiYagg/view?usp=share_link"
                 ),
                 "ironman": imread_from_url(
                     "https://i.pinimg.com/originals/0c/c0/50/0cc050fd99aad66dc434ce772a0449a9.png"  # noqa: E501
