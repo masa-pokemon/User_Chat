@@ -225,7 +225,7 @@ with col1:
         self_process_track.processor.filter_type = st.radio(
             "Select filter type",
             ("none", "ironman", "laughing_man", "cat"),
-            key="filter-type",
+            key="key",
         )
 
     with server_state_lock["webrtc_contexts"]:
