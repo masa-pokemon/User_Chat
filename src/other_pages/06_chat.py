@@ -32,8 +32,7 @@ from streamlit_webrtc import (
     create_process_track,
     webrtc_streamer,
 )
-user_msg = st.chat_input()
-col1, col2 = st.columns((3,4))
+col1, col2 = st.columns(2)
 with col1:
     
     logger = logging.getLogger(__name__)
@@ -94,7 +93,53 @@ with col1:
 
 
     class FaceOverlayProcessor(VideoProcessorBase):
+        filter_type: Literal["ironman", "laughing_man", "cat"]
+
+        def __init__(self) -> None:
+            self._face_cascade = cv2.CascadeClassifier(
+                str(cv2_path / "data/haarcascade_frontalface_alt2.xml")
+            )
+
+            self.filter_type = "ironman"
+            self._filters = {
+                "ironman": imread_from_url(
+                    "https://i.pinimg.com/originals/0c/c0/50/0cc050fd99aad66dc434ce772a0449a9.png"  # noqa: E501
+                ),
+                "laughing_man": imread_from_url(
+                    "https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/3a17e5a4-9610-4fa3-a4bd-cb7d94d6f7e1/darwcty-d989aaf1-3cfa-4576-b2ac-305209346162.png/v1/fill/w_944,h_847,strp/laughing_man_logo_by_aggressive_vector_darwcty-pre.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9OTE5IiwicGF0aCI6IlwvZlwvM2ExN2U1YTQtOTYxMC00ZmEzLWE0YmQtY2I3ZDk0ZDZmN2UxXC9kYXJ3Y3R5LWQ5ODlhYWYxLTNjZmEtNDU3Ni1iMmFjLTMwNTIwOTM0NjE2Mi5wbmciLCJ3aWR0aCI6Ijw9MTAyNCJ9XV0sImF1ZCI6WyJ1cm46c2VydmljZTppbWFnZS5vcGVyYXRpb25zIl19.5SDBnNZF6ktZM7Mk5gJfpHNQswRba3eqpvUn6FMHyW4"  # noqa: E501
+                ),
+                "cat": imread_from_url(
+                    "https://i.pinimg.com/originals/29/cd/fd/29cdfdf2248ce2465598b2cc9e357579.png"  # noqa: E501
+                ),
+            }
+
             self.draw_rect = False  # For debug
+
+        def recv(self, frame: av.VideoFrame) -> av.VideoFrame:
+            img = frame.to_ndarray(format="bgr24")
+            gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+            faces = self._face_cascade.detectMultiScale(
+                gray, scaleFactor=1.11, minNeighbors=3, minSize=(30, 30)
+            )
+
+            overlay = self._filters[self.filter_type]
+
+            for (x, y, w, h) in faces:
+                # Ad-hoc adjustment of the ROI for each filter type
+                if self.filter_type == "ironman":
+                    roi = (x, y, w, h)
+                elif self.filter_type == "laughing_man":
+                    roi = (x, y, int(w * 1.15), h)
+                elif self.filter_type == "cat":
+                    roi = (x, y - int(h * 0.3), w, h)
+                overlay_bgra(img, overlay, roi)
+
+                if self.draw_rect:
+                    img = cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 0), 2)
+
+            return av.VideoFrame.from_ndarray(img, format="bgr24")
+
 
         def mixer_callback(frames: List[av.VideoFrame]) -> av.VideoFrame:
             buf_w = 640
@@ -110,8 +155,8 @@ with col1:
 
             for i in range(n_inputs):
                 frame = frames[i]
-                if frame is None:
-                    continue
+            if frame is None:
+                continue
 
             grid_x = (i % n_cols) * grid_w
             grid_y = (i // n_cols) * grid_h
@@ -136,9 +181,9 @@ with col1:
                 img, (window_w, window_h)
             )
 
-            new_frame = av.VideoFrame.from_ndarray(buffer, format="bgr24")
+        new_frame = av.VideoFrame.from_ndarray(buffer, format="bgr24")
 
-            return new_frame
+        return new_frame
 
 
     def main():
@@ -170,6 +215,12 @@ with col1:
             processor_factory=FaceOverlayProcessor,
         )
         mix_track.add_input_track(self_process_track)
+
+        self_process_track.processor.filter_type = st.radio(
+            "Select filter type",
+            ("ironman", "laughing_man", "cat"),
+            key="filter-type",
+        )
 
     with server_state_lock["webrtc_contexts"]:
         webrtc_contexts: List[WebRtcStreamerContext] = server_state["webrtc_contexts"]
@@ -249,7 +300,8 @@ with col2:
         user_infos = {}
         username = st.session_state[const.SESSION_INFO_USERNAME]
         name = st.session_state[const.SESSION_INFO_NAME]
-        
+        user_msg = st.chat_input("Enter your message")
+
         # Show old chat messages
         chat_log = db.get_chat_log(chat_id=CHAT_ID, limit=const.MAX_CHAT_LOGS)
         if chat_log is not None:
