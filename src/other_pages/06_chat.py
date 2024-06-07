@@ -181,9 +181,9 @@ with col1:
                 img, (window_w, window_h)
             )
 
-        new_frame = av.VideoFrame.from_ndarray(buffer, format="bgr24")
+            new_frame = av.VideoFrame.from_ndarray(buffer, format="bgr24")
 
-        return new_frame
+            return new_frame
 
 
     def main():
