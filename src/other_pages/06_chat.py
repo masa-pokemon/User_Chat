@@ -131,11 +131,10 @@ with col1:
 
             for (x, y, w, h) in faces:
                 # Ad-hoc adjustment of the ROI for each filter type
-                
-                if self.filter_type == "ironman":
-                    roi = (x, y, w, h)
-                elif self.filter_type == "none":
+                if self.filter_type == "none":
                     roi = (x, y, int(0 * 1.15), 0)
+                elif self.filter_type == "ironman":
+                    roi = (x, y, w, h)
                 elif self.filter_type == "laughing_man":
                     roi = (x, y, int(w * 1.15), h)
                 elif self.filter_type == "cat":
