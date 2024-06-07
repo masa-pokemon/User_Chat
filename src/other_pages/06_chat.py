@@ -225,7 +225,7 @@ with col1:
 
         self_process_track.processor.filter_type = st.radio(
             "Select filter type",
-            ("ironman", "laughing_man", "cat","none"),
+            ("none", "ironman", "laughing_man", "cat"),
             key="filter-type",
         )
 
