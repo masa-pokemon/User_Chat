@@ -32,7 +32,8 @@ from streamlit_webrtc import (
     create_process_track,
     webrtc_streamer,
 )
-col1, col2 = st.columns((2,3))
+user_msg = ""
+col1, col2 = st.columns((2,3,5))
 with col1:
     
     logger = logging.getLogger(__name__)
@@ -411,6 +412,5 @@ with col2:
         )
     else:
         st.error("You are not logged in. Please go to the login page.")
-def chat_input():
+with col3 :
     user_msg = st.chat_input("Enter your message")
-    return user_msg
