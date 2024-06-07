@@ -104,20 +104,7 @@ with col1:
                 gray, scaleFactor=1.11, minNeighbors=3, minSize=(30, 30)
             )
 
-            overlay = self._filters[self.filter_type]
-
-            for (x, y, w, h) in faces:
-                # Ad-hoc adjustment of the ROI for each filter type
-                if self.filter_type == "ironman":
-                    roi = (x, y, w, h)
-                elif self.filter_type == "laughing_man":
-                    roi = (x, y, int(w * 1.15), h)
-                elif self.filter_type == "cat":
-                    roi = (x, y - int(h * 0.3), w, h)
-                overlay_bgra(img, overlay, roi)
-
-                if self.draw_rect:
-                    img = cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 0), 2)
+            img = cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 0), 2)
 
             return av.VideoFrame.from_ndarray(img, format="bgr24")
 
@@ -196,12 +183,6 @@ with col1:
             processor_factory=FaceOverlayProcessor,
         )
         mix_track.add_input_track(self_process_track)
-
-        self_process_track.processor.filter_type = st.radio(
-            "Select filter type",
-            ("ironman", "laughing_man", "cat"),
-            key="filter-type",
-        )
 
     with server_state_lock["webrtc_contexts"]:
         webrtc_contexts: List[WebRtcStreamerContext] = server_state["webrtc_contexts"]
