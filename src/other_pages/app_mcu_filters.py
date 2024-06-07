@@ -80,7 +80,7 @@ def overlay_bgra(background: np.ndarray, overlay: np.ndarray, roi):
 
 
 class FaceOverlayProcessor(VideoProcessorBase):
-    filter_type: Literal["ironman", "laughing_man", "cat"]
+    filter_type: Literal["none","ironman", "laughing_man", "cat"]
 
     def __init__(self) -> None:
         self._face_cascade = cv2.CascadeClassifier(
@@ -89,6 +89,9 @@ class FaceOverlayProcessor(VideoProcessorBase):
 
         self.filter_type = "ironman"
         self._filters = {
+            "none": imread_from_url(
+                ""  # noqa: E501
+            ),
             "ironman": imread_from_url(
                 "https://i.pinimg.com/originals/0c/c0/50/0cc050fd99aad66dc434ce772a0449a9.png"  # noqa: E501
             ),
@@ -116,8 +119,10 @@ class FaceOverlayProcessor(VideoProcessorBase):
             # Ad-hoc adjustment of the ROI for each filter type
             if self.filter_type == "ironman":
                 roi = (x, y, w, h)
+            elif self.filter_type == "none":
+                roi = (x, y, w, h)
             elif self.filter_type == "laughing_man":
-                roi = (x, y, int(w * 1.15), h)
+                roi = (x, y, int(0 * 1.15), 0)
             elif self.filter_type == "cat":
                 roi = (x, y - int(h * 0.3), w, h)
             overlay_bgra(img, overlay, roi)
@@ -205,7 +210,7 @@ def main():
 
         self_process_track.processor.filter_type = st.radio(
             "Select filter type",
-            ("ironman", "laughing_man", "cat"),
+            ("none","ironman", "laughing_man", "cat"),
             key="filter-type",
         )
 
