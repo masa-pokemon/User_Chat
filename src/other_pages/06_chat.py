@@ -301,7 +301,6 @@ with col2:
         user_infos = {}
         username = st.session_state[const.SESSION_INFO_USERNAME]
         name = st.session_state[const.SESSION_INFO_NAME]
-        user_msg = chat_input()
         
         # Show old chat messages
         chat_log = db.get_chat_log(chat_id=CHAT_ID, limit=const.MAX_CHAT_LOGS)
