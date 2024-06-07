@@ -1,6 +1,21 @@
 # This page is used to login to the application
 import streamlit as st
 from st_pages import add_page_title
+import streamlit as st
+from PIL import Image
+import time
+
+# 画像ファイルを読み込む
+image = Image.open('path_to_your_image.jpg')
+
+# 画像を表示する
+image_placeholder = st.empty()
+image_placeholder.image(image, caption='Your Image', use_column_width=True)
+
+# 十秒後に画像を非表示にする
+time.sleep(10)
+image_placeholder.empty()
+
 import argparse
 import const
 from modules import common
