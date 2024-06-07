@@ -6,7 +6,7 @@ from PIL import Image
 import time
 
 # 画像ファイルを読み込む
-image = Image.open('path_to_your_image.jpg')
+image = Image.open("src/logo.jpeg")
 
 # 画像を表示する
 image_placeholder = st.empty()
