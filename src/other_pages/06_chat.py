@@ -33,7 +33,7 @@ from streamlit_webrtc import (
     webrtc_streamer,
 )
 user_msg = st.chat_input()
-col1, col2, col3 = st.columns(3)
+col1, col2 = st.columns(2)
 with col1:
     
     logger = logging.getLogger(__name__)
@@ -411,5 +411,4 @@ with col2:
         )
     else:
         st.error("You are not logged in. Please go to the login page.")
-with col3 :
     user_msg = st.chat_input("Enter your message")
