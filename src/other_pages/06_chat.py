@@ -411,4 +411,3 @@ with col2:
         )
     else:
         st.error("You are not logged in. Please go to the login page.")
-    user_msg = st.chat_input("Enter your message")
