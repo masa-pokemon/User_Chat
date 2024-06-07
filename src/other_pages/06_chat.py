@@ -32,7 +32,7 @@ from streamlit_webrtc import (
     create_process_track,
     webrtc_streamer,
 )
-user_msg = ""
+user_msg = st.chat_input()
 col1, col2, col3 = st.columns(3)
 with col1:
     
