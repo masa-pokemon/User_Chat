@@ -73,6 +73,9 @@ def get_face_classifier():
 @st.experimental_singleton
 def get_filters():
     return {
+        "none": imread_from_url(
+            ""  # noqa: E501
+        ),
         "ironman": imread_from_url(
             "https://i.pinimg.com/originals/0c/c0/50/0cc050fd99aad66dc434ce772a0449a9.png"  # noqa: E501
         ),
@@ -94,7 +97,7 @@ def main():
 
     filter_type = st.radio(
         "Select filter type",
-        ("ironman", "laughing_man", "cat"),
+        ("none","ironman", "laughing_man", "cat"),
         key="filter-type",
     )
     draw_rect = st.checkbox("Draw rect (for debug)")
@@ -113,6 +116,8 @@ def main():
             # Ad-hoc adjustment of the ROI for each filter type
             if filter_type == "ironman":
                 roi = (x, y, w, h)
+            elif filter_type == "none":
+                roi = (x, y, 0, 0)
             elif filter_type == "laughing_man":
                 roi = (x, y, int(w * 1.15), h)
             elif filter_type == "cat":
