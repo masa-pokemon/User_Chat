@@ -300,8 +300,8 @@ with col2:
         user_infos = {}
         username = st.session_state[const.SESSION_INFO_USERNAME]
         name = st.session_state[const.SESSION_INFO_NAME]
-        user_msg = st.chat_input("Enter your message")
-
+        user_msg = chat_input()
+        
         # Show old chat messages
         chat_log = db.get_chat_log(chat_id=CHAT_ID, limit=const.MAX_CHAT_LOGS)
         if chat_log is not None:
@@ -411,3 +411,6 @@ with col2:
         )
     else:
         st.error("You are not logged in. Please go to the login page.")
+def chat_input()
+    user_msg = st.chat_input("Enter your message")
+    return user_msg
