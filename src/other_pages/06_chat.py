@@ -94,7 +94,7 @@ with col1:
 
 
     class FaceOverlayProcessor(VideoProcessorBase):
-        filter_type: Literal["ironman", "laughing_man", "cat"]
+        filter_type: Literal["none","ironman", "laughing_man", "cat"]
 
         def __init__(self) -> None:
             self._face_cascade = cv2.CascadeClassifier(
@@ -102,7 +102,10 @@ with col1:
             )
 
             self.filter_type = "ironman"
-            self._filters = {
+            self._filters = { 
+                "none" : imread_from_url(
+                    ""
+                ),
                 "ironman": imread_from_url(
                     "https://i.pinimg.com/originals/0c/c0/50/0cc050fd99aad66dc434ce772a0449a9.png"  # noqa: E501
                 ),
@@ -128,8 +131,11 @@ with col1:
 
             for (x, y, w, h) in faces:
                 # Ad-hoc adjustment of the ROI for each filter type
+                
                 if self.filter_type == "ironman":
                     roi = (x, y, w, h)
+                elif self.filter_type == "none":
+                    roi = (x, y, int(0 * 1.15), 0)
                 elif self.filter_type == "laughing_man":
                     roi = (x, y, int(w * 1.15), h)
                 elif self.filter_type == "cat":
@@ -219,7 +225,7 @@ with col1:
 
         self_process_track.processor.filter_type = st.radio(
             "Select filter type",
-            ("ironman", "laughing_man", "cat"),
+            ("ironman", "laughing_man", "cat","none"),
             key="filter-type",
         )
 
