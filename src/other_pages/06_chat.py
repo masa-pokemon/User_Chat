@@ -33,7 +33,7 @@ from streamlit_webrtc import (
     webrtc_streamer,
 )
 user_msg = st.chat_input()
-col1, col2 = st.columns((2,4))
+col1, col2 = st.columns((3,4))
 with col1:
     
     logger = logging.getLogger(__name__)
