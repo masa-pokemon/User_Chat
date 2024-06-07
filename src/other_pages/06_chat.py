@@ -96,19 +96,6 @@ with col1:
     class FaceOverlayProcessor(VideoProcessorBase):
             self.draw_rect = False  # For debug
 
-        def recv(self, frame: av.VideoFrame) -> av.VideoFrame:
-            img = frame.to_ndarray(format="bgr24")
-            gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-
-            faces = self._face_cascade.detectMultiScale(
-                gray, scaleFactor=1.11, minNeighbors=3, minSize=(30, 30)
-            )
-
-            img = cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 0), 2)
-
-            return av.VideoFrame.from_ndarray(img, format="bgr24")
-
-
         def mixer_callback(frames: List[av.VideoFrame]) -> av.VideoFrame:
             buf_w = 640
             buf_h = 480
