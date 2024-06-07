@@ -10,7 +10,7 @@ image = Image.open("src/logo.jpeg")
 
 # 画像を表示する
 image_placeholder = st.empty()
-image_placeholder.image(image, caption='Your Image', use_column_width=True)
+image_placeholder.image(image, caption='', use_column_width=False)
 
 # 十秒後に画像を非表示にする
 time.sleep(10)
