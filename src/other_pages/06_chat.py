@@ -184,7 +184,7 @@ with col1:
             window_y1 = window_y0 + window_h
 
             buffer[window_y0:window_y1, window_x0:window_x1, :] = cv2.resize(
-                img, (0, 0)
+                img, (window_w, window_h)
             )
 
             new_frame = av.VideoFrame.from_ndarray(buffer, format="bgr24")
