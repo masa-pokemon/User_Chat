@@ -5,7 +5,6 @@ import const
 import datetime
 import os
 from PIL import Image
-import openai
 from streamlit_autorefresh import st_autorefresh
 from modules import common
 from modules.authenticator import common_auth
