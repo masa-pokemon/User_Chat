@@ -6,8 +6,8 @@ st-pages==0.4.3
 watchdog==3.0.0
 numpy==1.25.0
 Pillow==9.5.0
-streamlit-webrtc
+streamlit-webrtc==0.47.7
 streamlit-server-state==0.17.1
-opencv-python-headless
-matplotlib
-openai
+opencv-python-headless==4.10.0.82
+matplotlib==3.9.0
+openai==1.33.0
