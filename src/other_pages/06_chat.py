@@ -101,7 +101,7 @@ with col1:
                 str(cv2_path / "data/haarcascade_frontalface_alt2.xml")
             )
 
-            self.filter_type = "none"
+            self.filter_type = "ironman"
             self._filters = { 
                 "none" : imread_from_url(
                     "https://drive.google.com/file/d/1CeaTD5RI6lvnha6XcuJFP3Cf1TMiYagg/view?usp=share_link"
