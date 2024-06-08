@@ -391,24 +391,6 @@ with col2:
             with st.chat_message(name, avatar=user_infos[username]["image"]):
                 st.write(name + "> " + user_msg)
 
-            if persona is not None:
-                # Show chatbot message
-                messages.append({"role": "user", "content": name + " said " + user_msg})
-                messages.append({"role": "assistant", "content": name + " said "})
-                completion = openai.ChatCompletion.create(
-                    model=const.MODEL_NAME,
-                    messages=messages,
-                )
-                assistant_msg = completion["choices"][0]["message"]["content"]
-                with st.chat_message(const.CHATBOT_NAME, avatar=const.CHATBOT_NAME):
-                    st.write(const.CHATBOT_NAME + "> " + assistant_msg)
-                db.insert_chat_log(
-                    chat_id=CHAT_ID,
-                    username=const.CHATBOT_USERNAME,
-                    name=const.CHATBOT_NAME,
-                    message=assistant_msg,
-                    sent_time=datetime.datetime.now(),
-                )
 
         # Refresh the page every (REFRESH_INTERVAL) seconds
         count = st_autorefresh(
