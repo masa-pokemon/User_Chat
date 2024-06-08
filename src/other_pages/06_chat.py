@@ -284,7 +284,6 @@ with col2:
     CHAT_ID = st.text_input("Enter your message")
     persona = None
     llm = None
-    use_chatbot = False
 
     CHATBOT_PERSONA = """
     Please become a character of the following setting and have a conversation.
