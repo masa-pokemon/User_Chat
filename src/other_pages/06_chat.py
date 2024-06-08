@@ -5,6 +5,7 @@ import const
 import datetime
 import os
 from PIL import Image
+import openai
 from streamlit_autorefresh import st_autorefresh
 from modules import common
 from modules.authenticator import common_auth
@@ -31,8 +32,8 @@ from streamlit_webrtc import (
     create_process_track,
     webrtc_streamer,
 )
-user_msg = st.chat_input("Enter your message")
-col1, col2 = st.columns(2)
+user_msg = ""
+col1, col2, col3 = st.columns(3)
 with col1:
     
     logger = logging.getLogger(__name__)
@@ -93,18 +94,15 @@ with col1:
 
 
     class FaceOverlayProcessor(VideoProcessorBase):
-        filter_type: Literal["none","ironman", "laughing_man", "cat"]
+        filter_type: Literal["ironman", "laughing_man", "cat"]
 
         def __init__(self) -> None:
             self._face_cascade = cv2.CascadeClassifier(
                 str(cv2_path / "data/haarcascade_frontalface_alt2.xml")
             )
 
-            self.filter_type = "none"
-            self._filters = { 
-                "none" : imread_from_url(
-                    "https://drive.google.com/file/d/1CeaTD5RI6lvnha6XcuJFP3Cf1TMiYagg/"
-                ),
+            self.filter_type = "ironman"
+            self._filters = {
                 "ironman": imread_from_url(
                     "https://i.pinimg.com/originals/0c/c0/50/0cc050fd99aad66dc434ce772a0449a9.png"  # noqa: E501
                 ),
@@ -130,9 +128,7 @@ with col1:
 
             for (x, y, w, h) in faces:
                 # Ad-hoc adjustment of the ROI for each filter type
-                if self.filter_type == "none":
-                    roi = (x, y, int(0 * 1.15), 0)
-                elif self.filter_type == "ironman":
+                if self.filter_type == "ironman":
                     roi = (x, y, w, h)
                 elif self.filter_type == "laughing_man":
                     roi = (x, y, int(w * 1.15), h)
@@ -223,8 +219,8 @@ with col1:
 
         self_process_track.processor.filter_type = st.radio(
             "Select filter type",
-            ("none", "ironman", "laughing_man", "cat"),
-            key="key",
+            ("ironman", "laughing_man", "cat"),
+            key="filter-type",
         )
 
     with server_state_lock["webrtc_contexts"]:
@@ -283,6 +279,7 @@ with col2:
     CHAT_ID = st.text_input("Enter your message")
     persona = None
     llm = None
+    use_chatbot = False
 
     CHATBOT_PERSONA = """
     Please become a character of the following setting and have a conversation.
@@ -304,7 +301,7 @@ with col2:
         user_infos = {}
         username = st.session_state[const.SESSION_INFO_USERNAME]
         name = st.session_state[const.SESSION_INFO_NAME]
-
+        
         # Show old chat messages
         chat_log = db.get_chat_log(chat_id=CHAT_ID, limit=const.MAX_CHAT_LOGS)
         if chat_log is not None:
@@ -389,6 +386,24 @@ with col2:
             with st.chat_message(name, avatar=user_infos[username]["image"]):
                 st.write(name + "> " + user_msg)
 
+            if persona is not None:
+                # Show chatbot message
+                messages.append({"role": "user", "content": name + " said " + user_msg})
+                messages.append({"role": "assistant", "content": name + " said "})
+                completion = openai.ChatCompletion.create(
+                    model=const.MODEL_NAME,
+                    messages=messages,
+                )
+                assistant_msg = completion["choices"][0]["message"]["content"]
+                with st.chat_message(const.CHATBOT_NAME, avatar=const.CHATBOT_NAME):
+                    st.write(const.CHATBOT_NAME + "> " + assistant_msg)
+                db.insert_chat_log(
+                    chat_id=CHAT_ID,
+                    username=const.CHATBOT_USERNAME,
+                    name=const.CHATBOT_NAME,
+                    message=assistant_msg,
+                    sent_time=datetime.datetime.now(),
+                )
 
         # Refresh the page every (REFRESH_INTERVAL) seconds
         count = st_autorefresh(
@@ -396,3 +411,5 @@ with col2:
         )
     else:
         st.error("You are not logged in. Please go to the login page.")
+with col3 :
+    user_msg = st.chat_input("Enter your message")
