@@ -249,7 +249,9 @@ with col1:
                     rtc_configuration={
                         "iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]
                     },
-                    media_stream_constraints={"video": False, "audio": True},
+                    video = st.checkbox('video')
+                    audio = st.checkbox('audio')
+                    media_stream_constraints={"video": video, "audio": audio},
                     source_audio_track=ctx.input_audio_track,
                     desired_playing_state=ctx.state.playing,
                 )
