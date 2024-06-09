@@ -250,7 +250,6 @@ with col1:
                         "iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]
                     },
                     
-                    audio = st.checkbox('audio')
                     media_stream_constraints={"video": video, "audio": audio},
                     source_audio_track=ctx.input_audio_track,
                     desired_playing_state=ctx.state.playing,
@@ -259,13 +258,13 @@ with col1:
         if __name__ == "__main__":
             import os
             if st.checkbox('video'):
-                        video = True
-                    else :
-                        video = False
-                    if st.checkbox('audio'):
-                        audio = True
-                    else :
-                        audio = False
+                video = True
+            else :
+                video = False
+            if st.checkbox('audio'):
+                audio = True
+            else :
+                audio = False
             DEBUG = os.environ.get("DEBUG", "false").lower() not in ["false", "no", "0"]
 
             logging.basicConfig(
