@@ -35,36 +35,6 @@ from streamlit_webrtc import (
 user_msg = st.chat_input("Enter your message")
 col1, col2 = st.columns(2)
 with col1:
-    if __name__ == "__main__":
-            import os
-            if st.checkbox('video'):
-                video = True
-            else :
-                video = False
-            if st.checkbox('audio'):
-                audio = True
-            else :
-                audio = False
-            DEBUG = os.environ.get("DEBUG", "false").lower() not in ["false", "no", "0"]
-
-            logging.basicConfig(
-                format="[%(asctime)s] %(levelname)7s from %(name)s in %(pathname)s:%(lineno)d: "
-                "%(message)s",
-                force=True,
-            )
-
-            logger.setLevel(level=logging.DEBUG if DEBUG else logging.INFO)
-
-            st_webrtc_logger = logging.getLogger("streamlit_webrtc")
-            st_webrtc_logger.setLevel(logging.DEBUG if DEBUG else logging.INFO)
-
-            aioice_logger = logging.getLogger("aioice")
-            aioice_logger.setLevel(logging.WARNING)
-
-            fsevents_logger = logging.getLogger("fsevents")
-            fsevents_logger.setLevel(logging.WARNING)
-
-            main()
     logger = logging.getLogger(__name__)
 
     cv2_path = Path(cv2.__file__).parent
@@ -422,3 +392,34 @@ with col2:
         )
     else:
         st.error("You are not logged in. Please go to the login page.")
+
+    if __name__ == "__main__":
+            import os
+            if st.checkbox('video'):
+                video = True
+            else :
+                video = False
+            if st.checkbox('audio'):
+                audio = True
+            else :
+                audio = False
+            DEBUG = os.environ.get("DEBUG", "false").lower() not in ["false", "no", "0"]
+
+            logging.basicConfig(
+                format="[%(asctime)s] %(levelname)7s from %(name)s in %(pathname)s:%(lineno)d: "
+                "%(message)s",
+                force=True,
+            )
+
+            logger.setLevel(level=logging.DEBUG if DEBUG else logging.INFO)
+
+            st_webrtc_logger = logging.getLogger("streamlit_webrtc")
+            st_webrtc_logger.setLevel(logging.DEBUG if DEBUG else logging.INFO)
+
+            aioice_logger = logging.getLogger("aioice")
+            aioice_logger.setLevel(logging.WARNING)
+
+            fsevents_logger = logging.getLogger("fsevents")
+            fsevents_logger.setLevel(logging.WARNING)
+
+            main()
