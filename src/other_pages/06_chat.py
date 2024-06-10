@@ -16,7 +16,6 @@ with col1:
     import av
     import cv2
     import numpy as np
-    import streamlit as st
     from streamlit_server_state import server_state, server_state_lock
     from streamlit_webrtc import (
         VideoProcessorBase,
@@ -268,7 +267,6 @@ with col1:
 with col2:
 
     # This page is for chat
-    import streamlit as st
     from st_pages import add_page_title
     import const
     import datetime
