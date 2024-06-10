@@ -198,30 +198,30 @@ with col1:
                     kind="video", mixer_callback=mixer_callback, key="mix"
                 )
 
-    mix_track = server_state["mix_track"]
+            mix_track = server_state["mix_track"]
 
-    self_ctx = webrtc_streamer(
-        key="self",
-        mode=WebRtcMode.SENDRECV,
-        rtc_configuration={"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]},
-        media_stream_constraints={"video": True, "audio": True},
-        source_video_track=mix_track,
-        sendback_audio=False,
-    )
+            self_ctx = webrtc_streamer(
+                key="self",
+                mode=WebRtcMode.SENDRECV,
+                rtc_configuration={"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]},
+                media_stream_constraints={"video": True, "audio": True},
+                source_video_track=mix_track,
+                sendback_audio=False,
+            )
 
-    self_process_track = None
-    if self_ctx.input_video_track:
-        self_process_track = create_process_track(
-            input_track=self_ctx.input_video_track,
-            processor_factory=FaceOverlayProcessor,
-        )
-        mix_track.add_input_track(self_process_track)
+            self_process_track = None
+            if self_ctx.input_video_track:
+                self_process_track = create_process_track(
+                    input_track=self_ctx.input_video_track,
+                    processor_factory=FaceOverlayProcessor,
+                )
+                mix_track.add_input_track(self_process_track)
 
-        self_process_track.processor.filter_type = st.radio(
-            "Select filter type",
-            ("ironman", "laughing_man", "cat"),
-            key="filter-type",
-        )
+                self_process_track.processor.filter_type = st.radio(
+                    "Select filter type",
+                    ("none","ironman", "laughing_man", "cat"),
+                    key="filter-type",
+                )
 
     with server_state_lock["webrtc_contexts"]:
         webrtc_contexts: List[WebRtcStreamerContext] = server_state["webrtc_contexts"]
