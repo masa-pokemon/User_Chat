@@ -8,7 +8,7 @@ with col1:
 
     try:
         from typing import Literal
-        except ImportError:
+    except ImportError:
         from typing_extensions import Literal  # type: ignore
 
     import av
