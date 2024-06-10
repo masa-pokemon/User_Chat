@@ -32,9 +32,10 @@ from streamlit_webrtc import (
     create_process_track,
     webrtc_streamer,
 )
-user_msg = st.chat_input("Enter your message")
-col1, col2 = st.columns(2)
+user_msg = st.chat_input()
+col1, col2 = st.columns((3,4))
 with col1:
+    
     logger = logging.getLogger(__name__)
 
     cv2_path = Path(cv2.__file__).parent
@@ -93,7 +94,7 @@ with col1:
 
 
     class FaceOverlayProcessor(VideoProcessorBase):
-        filter_type: Literal["none","ironman", "laughing_man", "cat"]
+        filter_type: Literal["ironman", "laughing_man", "cat"]
 
         def __init__(self) -> None:
             self._face_cascade = cv2.CascadeClassifier(
@@ -101,10 +102,7 @@ with col1:
             )
 
             self.filter_type = "ironman"
-            self._filters = { 
-                "none" : imread_from_url(
-                    "https://drive.google.com/file/d/1CeaTD5RI6lvnha6XcuJFP3Cf1TMiYagg/view?usp=share_link"
-                ),
+            self._filters = {
                 "ironman": imread_from_url(
                     "https://i.pinimg.com/originals/0c/c0/50/0cc050fd99aad66dc434ce772a0449a9.png"  # noqa: E501
                 ),
@@ -130,9 +128,7 @@ with col1:
 
             for (x, y, w, h) in faces:
                 # Ad-hoc adjustment of the ROI for each filter type
-                if self.filter_type == "none":
-                    roi = (x, y, int(0 * 1.15), 0)
-                elif self.filter_type == "ironman":
+                if self.filter_type == "ironman":
                     roi = (x, y, w, h)
                 elif self.filter_type == "laughing_man":
                     roi = (x, y, int(w * 1.15), h)
@@ -202,58 +198,81 @@ with col1:
                     kind="video", mixer_callback=mixer_callback, key="mix"
                 )
 
-            mix_track = server_state["mix_track"]
+    mix_track = server_state["mix_track"]
 
-            self_ctx = webrtc_streamer(
-                key="self",
-                mode=WebRtcMode.SENDRECV,
-                rtc_configuration={"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]},
-                media_stream_constraints={"video": True, "audio": True},
-                source_video_track=mix_track,
-                sendback_audio=False,
+    self_ctx = webrtc_streamer(
+        key="self",
+        mode=WebRtcMode.SENDRECV,
+        rtc_configuration={"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]},
+        media_stream_constraints={"video": True, "audio": True},
+        source_video_track=mix_track,
+        sendback_audio=False,
+    )
+
+    self_process_track = None
+    if self_ctx.input_video_track:
+        self_process_track = create_process_track(
+            input_track=self_ctx.input_video_track,
+            processor_factory=FaceOverlayProcessor,
+        )
+        mix_track.add_input_track(self_process_track)
+
+        self_process_track.processor.filter_type = st.radio(
+            "Select filter type",
+            ("ironman", "laughing_man", "cat"),
+            key="filter-type",
+        )
+
+    with server_state_lock["webrtc_contexts"]:
+        webrtc_contexts: List[WebRtcStreamerContext] = server_state["webrtc_contexts"]
+        self_is_playing = self_ctx.state.playing and self_process_track
+        if self_is_playing and self_ctx not in webrtc_contexts:
+            webrtc_contexts.append(self_ctx)
+            server_state["webrtc_contexts"] = webrtc_contexts
+        elif not self_is_playing and self_ctx in webrtc_contexts:
+            webrtc_contexts.remove(self_ctx)
+            server_state["webrtc_contexts"] = webrtc_contexts
+
+        # Audio streams are transferred in SFU manner
+        # TODO: Create MCU to mix audio streams
+        for ctx in webrtc_contexts:
+            if ctx == self_ctx or not ctx.state.playing:
+                continue
+            webrtc_streamer(
+                key=f"sound-{id(ctx)}",
+                mode=WebRtcMode.RECVONLY,
+                rtc_configuration={
+                    "iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]
+                },
+                media_stream_constraints={"video": False, "audio": True},
+                source_audio_track=ctx.input_audio_track,
+                desired_playing_state=ctx.state.playing,
             )
 
-            self_process_track = None
-            if self_ctx.input_video_track:
-                self_process_track = create_process_track(
-                    input_track=self_ctx.input_video_track,
-                    processor_factory=FaceOverlayProcessor,
-                )
-                mix_track.add_input_track(self_process_track)
 
-                self_process_track.processor.filter_type = st.radio(
-                    "Select filter type",
-                    ("none", "ironman", "laughing_man", "cat"),
-                    key="filter-type",
-                )
+    if __name__ == "__main__":
+        import os
 
-        with server_state_lock["webrtc_contexts"]:
-            webrtc_contexts: List[WebRtcStreamerContext] = server_state["webrtc_contexts"]
-            self_is_playing = self_ctx.state.playing and self_process_track
-            if self_is_playing and self_ctx not in webrtc_contexts:
-                webrtc_contexts.append(self_ctx)
-                server_state["webrtc_contexts"] = webrtc_contexts
-            elif not self_is_playing and self_ctx in webrtc_contexts:
-                webrtc_contexts.remove(self_ctx)
-                server_state["webrtc_contexts"] = webrtc_contexts
+        DEBUG = os.environ.get("DEBUG", "false").lower() not in ["false", "no", "0"]
 
-            # Audio streams are transferred in SFU manner
-            # TODO: Create MCU to mix audio streams
-            for ctx in webrtc_contexts:
-                if ctx == self_ctx or not ctx.state.playing:
-                    continue
-                webrtc_streamer(
-                    key=f"sound-{id(ctx)}",
-                    mode=WebRtcMode.RECVONLY,
-                    rtc_configuration={
-                        "iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]
-                    },
-                    
-                    media_stream_constraints={"video": video, "audio": audio},
-                    source_audio_track=ctx.input_audio_track,
-                    desired_playing_state=ctx.state.playing,
-                )
+        logging.basicConfig(
+            format="[%(asctime)s] %(levelname)7s from %(name)s in %(pathname)s:%(lineno)d: "
+            "%(message)s",
+            force=True,
+        )
 
+        logger.setLevel(level=logging.DEBUG if DEBUG else logging.INFO)
+
+        st_webrtc_logger = logging.getLogger("streamlit_webrtc")
+        st_webrtc_logger.setLevel(logging.DEBUG if DEBUG else logging.INFO)
+
+        aioice_logger = logging.getLogger("aioice")
+        aioice_logger.setLevel(logging.WARNING)
+
+        fsevents_logger = logging.getLogger("fsevents")
+        fsevents_logger.setLevel(logging.WARNING)
+
+        main()
         
 with col2:
     CHAT_ID = "0"
@@ -282,7 +301,7 @@ with col2:
         user_infos = {}
         username = st.session_state[const.SESSION_INFO_USERNAME]
         name = st.session_state[const.SESSION_INFO_NAME]
-
+        
         # Show old chat messages
         chat_log = db.get_chat_log(chat_id=CHAT_ID, limit=const.MAX_CHAT_LOGS)
         if chat_log is not None:
@@ -392,34 +411,3 @@ with col2:
         )
     else:
         st.error("You are not logged in. Please go to the login page.")
-
-    if __name__ == "__main__":
-            import os
-            if st.checkbox('video'):
-                video = True
-            else :
-                video = False
-            if st.checkbox('audio'):
-                audio = True
-            else :
-                audio = False
-            DEBUG = os.environ.get("DEBUG", "false").lower() not in ["false", "no", "0"]
-
-            logging.basicConfig(
-                format="[%(asctime)s] %(levelname)7s from %(name)s in %(pathname)s:%(lineno)d: "
-                "%(message)s",
-                force=True,
-            )
-
-            logger.setLevel(level=logging.DEBUG if DEBUG else logging.INFO)
-
-            st_webrtc_logger = logging.getLogger("streamlit_webrtc")
-            st_webrtc_logger.setLevel(logging.DEBUG if DEBUG else logging.INFO)
-
-            aioice_logger = logging.getLogger("aioice")
-            aioice_logger.setLevel(logging.WARNING)
-
-            fsevents_logger = logging.getLogger("fsevents")
-            fsevents_logger.setLevel(logging.WARNING)
-
-            main()
