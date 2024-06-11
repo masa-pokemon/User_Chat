@@ -31,7 +31,7 @@ def set_pages():
         common.check_if_exists_in_session(const.SESSION_INFO_AUTH_STATUS)
         and st.session_state[const.SESSION_INFO_AUTH_STATUS]
     ):
-        pages += after_login_pages
+        pages = after_login_pages + pages
     show_pages(pages)
 
 
