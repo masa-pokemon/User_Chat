@@ -3,6 +3,7 @@ FROM ubuntu:22.04
 RUN apt-get update -y \
     && apt-get upgrade -y \
     && apt-get autoremove -y
+RUN RUN apt-get update && apt-get install ffmpeg libsm6 libxext6  -y
 RUN apt-get install -y python3-pip python3-dev
 
 
