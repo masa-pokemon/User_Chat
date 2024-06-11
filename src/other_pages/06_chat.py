@@ -1,7 +1,7 @@
 
 import streamlit as st
-col1, col2 = st.columns(2)
 user_msg = st.chat_input("Enter your message")
+col1, col2 = st.columns(2)
 with col1:
     import logging
     import math
