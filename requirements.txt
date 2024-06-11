@@ -12,8 +12,8 @@ streamlit-webrtc==0.47.7
 streamlit-server-state
 opencv-python
 
-#opencv-contrib-python
-#opencv-python-headless
-#opencv-contrib-python-headless
+opencv-contrib-python
+opencv-python-headless
+opencv-contrib-python-headless
 numpy
 av
