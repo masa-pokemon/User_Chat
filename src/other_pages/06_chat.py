@@ -1,6 +1,7 @@
 
 import streamlit as st
 col1, col2 = st.columns(2)
+user_msg = st.chat_input("Enter your message")
 with col1:
     import logging
     import math
@@ -279,6 +280,7 @@ with col2:
     from modules.database import database
 
     CHAT_ID = "0"
+    CHAT_ID = st.text_input("ChatID")
     persona = None
     llm = None
     use_chatbot = False
@@ -318,7 +320,6 @@ with col2:
         user_infos = {}
         username = st.session_state[const.SESSION_INFO_USERNAME]
         name = st.session_state[const.SESSION_INFO_NAME]
-        user_msg = st.chat_input("Enter your message")
 
         # Show old chat messages
         chat_log = db.get_chat_log(chat_id=CHAT_ID, limit=const.MAX_CHAT_LOGS)
