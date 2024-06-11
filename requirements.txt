@@ -7,8 +7,11 @@ watchdog==3.0.0
 numpy==1.25.0
 Pillow==9.5.0
 streamlit-webrtc==0.47.7
-streamlit_server_state
 streamlit-server-state==0.17.1
-opencv-python-headless==4.10.0.82
 matplotlib==3.9.0
 openai==1.33.0
+opencv-python
+opencv-contrib-python
+opencv-python-headless
+opencv-contrib-python-headless
+av
