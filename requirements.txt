@@ -11,7 +11,7 @@ streamlit-server-state==0.17.1
 matplotlib==3.9.0
 openai==1.33.0
 opencv-python==4.10.0.82
-opencv-contrib-python
-opencv-python-headless
-opencv-contrib-python-headless
+opencv-contrib-python==4.10.0.82
+opencv-python-headless==4.10.0.82
+opencv-contrib-python-headless==4.10.0.82
 av
