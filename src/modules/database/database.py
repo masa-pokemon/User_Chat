@@ -24,10 +24,6 @@ def dict_factory(cursor, row):
 
 class Database:
     def __init__(self, db_path: str = const.DATABSE_PATH):
-        
-        password = stauth.Hasher("pokemon").generate()
-
-        insert_user_info("suzuki","suzuki@suzuki","suzuki", "","")
         self.db_path = db_path
         with sqlite3.connect(db_path) as conn:
             with AutoCloseCursur(conn) as cur:
