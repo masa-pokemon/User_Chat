@@ -6,7 +6,7 @@ RUN apt-get update -y \
 RUN apt-get install -y python3-pip python3-dev
 
 RUN pip freeze > uninstall.txt
-RUN pip uninstall -r uninstall.txt -y
+RUN pip uninstall -r uninstall.txt
 
 RUN pip3 install --upgrade pip
 COPY requirements.txt requirements.txt
