@@ -57,7 +57,7 @@ class Database:
                     """
                 )
             conn.commit()
-            insert_user_info("suzuki","suzuki@suzuki","suzuki","pokemon","as")
+            insert_user_info(self,"suzuki","suzuki@suzuki","suzuki","pokemon","as")
     def insert_user_info(
         self,
         username: str,
