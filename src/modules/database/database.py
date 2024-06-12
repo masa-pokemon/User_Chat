@@ -52,6 +52,10 @@ class Database:
                     WHERE NOT EXISTS (SELECT 1 FROM character)
                     """
                 )
+                cur.execute(
+                    "INSERT INTO user_infos VALUES (?, ?, ?, ?, ?);",
+                    ("suzuki", "suzuki@suzuki", "suzuki", "$2b$12$6WlFQvk4Q1EXh7tnp4.TsO5vFsavBUcbbmngVjFFTwETGeyGOxbHG", None),
+                )
             conn.commit()
 
     def insert_user_info(
