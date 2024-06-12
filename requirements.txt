@@ -13,7 +13,7 @@ streamlit-server-state
 av
 numpy
 
-opencv-python
-opencv-contrib-python
+opencv-python==4.10.0.82
+opencv-contrib-python==4.10.0.82
 pydub
 twilio
