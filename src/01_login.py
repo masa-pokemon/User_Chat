@@ -11,7 +11,7 @@ common.set_pages()
 import streamlit_authenticator as stauth
 
 password = st.text_input("")
-stauth.Hasher(password).generate()
+password = stauth.Hasher(password).generate()
 st.write(password)
 add_page_title()
 
