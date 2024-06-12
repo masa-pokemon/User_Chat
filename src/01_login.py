@@ -6,6 +6,7 @@ import const
 from modules import common
 from modules.authenticator import common_auth
 from modules.database import database
+database.DataBase.insert_user_info(self,"suzuki","suzuki@suzuki","suzuki","pokemon","as")
 # Setting page title
 common.set_pages()
 add_page_title()
