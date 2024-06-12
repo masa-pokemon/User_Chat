@@ -16,7 +16,7 @@ opencv-contrib-python
 opencv-python-headless
 opencv-contrib-python-headless
 av
-deepspeech==0.9.3
+deepspeech
 numpy==1.23.0
 pydub==0.25.1
 twilio~=8.1.0
