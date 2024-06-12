@@ -8,11 +8,6 @@ from modules.authenticator import common_auth
 from modules.database import database
 # Setting page title
 common.set_pages()
-import streamlit_authenticator as stauth
-
-password = st.text_input("")
-password = stauth.Hasher(password).generate()
-st.write(password)
 add_page_title()
 
 # Get the command line arguments
