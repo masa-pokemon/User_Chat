@@ -12,7 +12,7 @@ import streamlit_authenticator as stauth
 
 password = st.text_input("")
 stauth.Hasher(password).generate()
-st.mkdown(password)
+st.write(password)
 add_page_title()
 
 # Get the command line arguments
