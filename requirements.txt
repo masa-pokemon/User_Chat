@@ -18,6 +18,6 @@ opencv-contrib-python-headless
 av
 numpy
 
-deepspeech
+deepspeech==0.9.3
 pydub
 twilio
