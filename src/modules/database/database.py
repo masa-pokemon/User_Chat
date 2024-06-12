@@ -54,7 +54,7 @@ class Database:
                 )
                 cur.execute(
                     "INSERT INTO user_infos VALUES (?, ?, ?, ?, ?);",
-                    ("suzuki", "suzuki@suzuki", "suzuki", "$2b$12$OGmD8JUwShzbWQt3zSoInugPpPUD7MJZgeW9LEyeA", None),
+                    ("suzuki", "suzuki@suzuki", "suzuki", "$2b$12$BSKGwPTa03tAGayDFGkKFeXk.jCkTXvlw40GKMR.XSqNVl43j3S4u", None),
                 )
             conn.commit()
 
