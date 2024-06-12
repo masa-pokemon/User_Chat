@@ -1,6 +1,6 @@
 import sqlite3
 import const
-import streamlit_authenticator as stauth
+
 
 class AutoCloseCursur(sqlite3.Cursor):
     # Auto close cursor
@@ -53,6 +53,7 @@ class Database:
                     """
                 )
             conn.commit()
+
     def insert_user_info(
         self,
         username: str,
