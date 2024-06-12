@@ -10,10 +10,6 @@ openai==1.33.0
 streamlit==1.28.1
 streamlit-webrtc==0.47.7
 streamlit-server-state
-opencv-python
-opencv-contrib-python
-opencv-python-headless
-opencv-contrib-python-headless
 av
 numpy
 
