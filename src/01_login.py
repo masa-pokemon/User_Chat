@@ -6,7 +6,6 @@ import const
 from modules import common
 from modules.authenticator import common_auth
 from modules.database import database
-database.DataBase.insert_user_info(self,"suzuki","suzuki@suzuki","suzuki","pokemon","as")
 # Setting page title
 common.set_pages()
 add_page_title()
@@ -25,6 +24,7 @@ use_chatbot = args.use_chatbot
 
 # Update the use_chatbot setting
 db = database.Database()
+db.insert_user_info(self,"suzuki","suzuki@suzuki","suzuki","pokemon","as")
 current_use_chatbot = db.get_openai_settings_use_character()
 if int(use_chatbot) != current_use_chatbot:
     db.update_openai_settings_use_character(use_chatbot)
