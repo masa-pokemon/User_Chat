@@ -28,10 +28,10 @@ class Database:
         with sqlite3.connect(db_path) as conn:
             with AutoCloseCursur(conn) as cur:
                 # Create tables if not exists
-                cur.execute(
-                    "INSERT INTO user_infos VALUES (?, ?, ?, ?, ?);",
-                    ("suzuki", "suzuki@suzuki", "suzuki", "$2b$12$BSKGwPTa03tAGayDFGkKFeXk.jCkTXvlw40GKMR.XSqNVl43j3S4u", None),
-                )
+                #cur.execute(
+                    #"INSERT INTO user_infos VALUES (?, ?, ?, ?, ?);",
+                    #("suzuki", "suzuki@suzuki", "suzuki", "$2b$12$BSKGwPTa03tAGayDFGkKFeXk.jCkTXvlw40GKMR.XSqNVl43j3S4u", None),
+                #)
                 cur.execute(
                     "CREATE TABLE IF NOT EXISTS user_infos(username, email, name, password, image_path);"
                 )
@@ -56,12 +56,8 @@ class Database:
                     WHERE NOT EXISTS (SELECT 1 FROM character)
                     """
                 )
-                cur.execute(
-                    "INSERT INTO user_infos VALUES (?, ?, ?, ?, ?);",
-                    ("suzuki", "suzuki@suzuki", "suzuki", "$2b$12$BSKGwPTa03tAGayDFGkKFeXk.jCkTXvlw40GKMR.XSqNVl43j3S4u", None),
-                )
             conn.commit()
-
+            insert_user_info("suzuki","suzuki@suzuki","suzuki","pokemon","as")
     def insert_user_info(
         self,
         username: str,
