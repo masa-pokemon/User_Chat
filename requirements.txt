@@ -15,11 +15,8 @@ opencv-python
 opencv-contrib-python
 opencv-python-headless
 opencv-contrib-python-headless
-numpy
 av
-
-wave
-time
-datetime
-speech_recognition
-pyaudio
+deepspeech==0.9.3
+numpy==1.23.0
+pydub==0.25.1
+twilio~=8.1.0
