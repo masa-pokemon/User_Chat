@@ -6,10 +6,6 @@ import const
 from modules import common
 from modules.authenticator import common_auth
 from modules.database import database
-import streamlit_authenticator as stauth
-
-password = st.text_input("")
-stauth.Hasher(password).generate()[0],
 # Setting page title
 common.set_pages()
 add_page_title()
