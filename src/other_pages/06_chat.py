@@ -205,6 +205,57 @@ with col1:
         fsevents_logger.setLevel(logging.WARNING)
 
         main()
+with col3:
+    status_indicator = st.empty()
+
+    if not webrtc_ctx.state.playing:
+        return
+
+    status_indicator.write("Loading...")
+    text_output = st.empty()
+    stream = None
+
+    while True:
+        if webrtc_ctx.audio_receiver:
+            if stream is None:
+                from deepspeech import Model
+
+                model = Model(model_path)
+                model.enableExternalScorer(lm_path)
+                model.setScorerAlphaBeta(lm_alpha, lm_beta)
+                model.setBeamWidth(beam)
+
+                stream = model.createStream()
+
+                status_indicator.write("Model loaded.")
+
+            sound_chunk = pydub.AudioSegment.empty()
+            try:
+                audio_frames = webrtc_ctx.audio_receiver.get_frames(timeout=1)
+            except queue.Empty:
+                time.sleep(0.1)
+                status_indicator.write("No frame arrived.")
+                continue
+
+            status_indicator.write("Running. Say something!")
+
+            for audio_frame in audio_frames:
+                sound = pydub.AudioSegment(
+                    data=audio_frame.to_ndarray().tobytes(),
+                    sample_width=audio_frame.format.bytes,
+                    frame_rate=audio_frame.sample_rate,
+                    channels=len(audio_frame.layout.channels),
+                )
+                sound_chunk += sound
+
+            if len(sound_chunk) > 0:
+                sound_chunk = sound_chunk.set_channels(1).set_frame_rate(
+                    model.sampleRate()
+                )
+                buffer = np.array(sound_chunk.get_array_of_samples())
+                stream.feedAudioContent(buffer)
+                text = stream.intermediateDecode()
+                text_output.markdown(f"**Text:** {text}")
 with col2:
 
     # This page is for chat
