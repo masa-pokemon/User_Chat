@@ -206,6 +206,13 @@ with col1:
 
         main()
 with col3:
+    webrtc_ctx = webrtc_streamer(
+        key="speech-to-text",
+        mode=WebRtcMode.SENDONLY,
+        audio_receiver_size=1024,
+        rtc_configuration={"iceServers": get_ice_servers()},
+        media_stream_constraints={"video": False, "audio": True},
+    )
     status_indicator = st.empty()
 
     status_indicator.write("Loading...")
