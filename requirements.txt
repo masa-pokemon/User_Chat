@@ -15,7 +15,7 @@ opencv-python
 opencv-contrib-python
 opencv-python-headless
 opencv-contrib-python-headless
-av==9.2.0
+av
 deepspeech
 numpy==1.23.0
 pydub==0.25.1
