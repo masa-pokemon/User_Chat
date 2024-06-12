@@ -5,8 +5,8 @@ RUN apt-get update -y \
     && apt-get autoremove -y
 RUN apt-get install -y python3-pip python3-dev
 
-RUN pip freeze > uninstall.txt
-RUN pip uninstall -y -r uninstall.txt 
+RUN pip3 freeze > uninstall.txt
+RUN pip3 uninstall -y -r uninstall.txt 
 
 RUN pip3 install --upgrade pip
 RUN deepspeech>=0.9.0,<=0.9.3
