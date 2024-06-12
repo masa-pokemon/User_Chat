@@ -25,9 +25,6 @@ use_chatbot = args.use_chatbot
 
 # Update the use_chatbot setting
 db = database.Database()
-password = stauth.Hasher("pokemon").generate()
-
-db.insert_user_info("suzuki","suzuki@suzuki","suzuki", "","")
 current_use_chatbot = db.get_openai_settings_use_character()
 if int(use_chatbot) != current_use_chatbot:
     db.update_openai_settings_use_character(use_chatbot)
