@@ -19,5 +19,4 @@ pydub
 twilio
 
 edge-tts
-asyncio
 speech_recognition
