@@ -8,7 +8,7 @@ RUN pip3 freeze > uninstall.txt
 RUN pip3 uninstall -y -r uninstall.txt 
 
 RUN pip3 install --upgrade pip
-RUN deepspeech>=0.9.0,<=0.9.3
+RUN pip3 install deepspeech>=0.9.0,<=0.9.3
 COPY requirements.txt requirements.txt
 RUN pip3 install -r requirements.txt
 
