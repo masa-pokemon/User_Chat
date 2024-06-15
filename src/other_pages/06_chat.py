@@ -375,4 +375,4 @@ with col2:
         st.error("You are not logged in. Please go to the login page.")
 
 
-        st.write(i)
+st.write(i)
