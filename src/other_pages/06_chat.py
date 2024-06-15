@@ -2,7 +2,7 @@
 import streamlit as st
 user_msg = st.chat_input("Enter your message")
 col1, col2 = st.columns(2)
-i = []
+i = None
 with col1:
     import logging
     import math
