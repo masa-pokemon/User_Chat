@@ -169,7 +169,7 @@ with col1:
             # Audio streams are transferred in SFU manner
             # TODO: Create MCU to mix audio streams
             for ctx in webrtc_contexts:
-                i += ctx.state.playing,
+                i += ctx.state.playing
                 if ctx == self_ctx or not ctx.state.playing:
                     continue
                 webrtc_streamer(
