@@ -207,7 +207,6 @@ with col1:
         fsevents_logger.setLevel(logging.WARNING)
 
         main()
-        st.write(i)
 
 with col2:
 
@@ -375,3 +374,5 @@ with col2:
     else:
         st.error("You are not logged in. Please go to the login page.")
 
+
+        st.write(i)
