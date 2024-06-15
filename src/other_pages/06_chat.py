@@ -2,6 +2,7 @@
 import streamlit as st
 user_msg = st.chat_input("Enter your message")
 col1, col2 = st.columns(2)
+i = []
 with col1:
     import logging
     import math
@@ -168,6 +169,7 @@ with col1:
             # Audio streams are transferred in SFU manner
             # TODO: Create MCU to mix audio streams
             for ctx in webrtc_contexts:
+                i += ctx
                 if ctx == self_ctx or not ctx.state.playing:
                     continue
                 webrtc_streamer(
@@ -180,7 +182,7 @@ with col1:
                     source_audio_track=ctx.input_audio_track,
                     desired_playing_state=ctx.state.playing,
                 )
-
+            
 
     if __name__ == "__main__":
         import os
@@ -205,6 +207,7 @@ with col1:
         fsevents_logger.setLevel(logging.WARNING)
 
         main()
+        st.write(i)
 
 with col2:
 
