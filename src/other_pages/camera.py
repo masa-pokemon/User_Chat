@@ -58,5 +58,5 @@ class SpeechRecognizer:
             out.write("\n".join(self.speech) + "\n")
 
 if __name__ == "__main__":
-    sp = SpeechRecognizer()
-    sp.run()
+    SpeechRecognizer()
+    
