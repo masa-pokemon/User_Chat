@@ -21,3 +21,4 @@ twilio
 edge_tts 
 asyncio 
 SpeechRecognition 
+pyaudio
