@@ -1,7 +1,7 @@
 
 import streamlit as st
 user_msg = st.chat_input("Enter your message")
-col1, col2,col3 = st.columns(3)
+col1, col2 = st.columns(2)
 with col1:
     import logging
     import math
@@ -205,7 +205,6 @@ with col1:
         fsevents_logger.setLevel(logging.WARNING)
 
         main()
-with col3:
 
 with col2:
 
