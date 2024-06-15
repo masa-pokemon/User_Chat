@@ -17,6 +17,3 @@ opencv-python-headless==4.10.0.82
 opencv-contrib-python-headless==4.10.0.82
 pydub
 twilio
-
-edge-tts
-speech_recognition
