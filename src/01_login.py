@@ -1,51 +1,49 @@
 import streamlit as st
 import pandas as pd
 
-# 初期データの読み込み（データがない場合は空のDataFrameを作成）
-if 'posts' not in st.session_state:
-    st.session_state.posts = pd.DataFrame(columns=["ユーザー名", "交換したいカード", "提供できるカード", "メッセージ"])
+# グローバルなカード交換データ
+if 'exchange_data' not in st.session_state:
+    st.session_state.exchange_data = pd.DataFrame(columns=["ユーザー名", "ポケモンカード", "交換希望", "ステータス"])
 
-# サイドバーに投稿フォームを作成
-st.sidebar.title("ポケモンカード交換掲示板")
-
-# ユーザー名
-username = st.sidebar.text_input("ユーザー名", "")
-
-# 交換したいカード
-wanted_card = st.sidebar.text_input("交換したいカード", "")
-
-# 提供できるカード
-offered_card = st.sidebar.text_input("提供できるカード", "")
-
-# メッセージ
-message = st.sidebar.text_area("メッセージ", "")
-
-# 投稿ボタン
-if st.sidebar.button("投稿する"):
-    if username and wanted_card and offered_card:
-        # 新しい投稿をDataFrameに追加
-        new_post = {
-            "ユーザー名": username,
-            "交換したいカード": wanted_card,
-            "提供できるカード": offered_card,
-            "メッセージ": message
-        }
-        st.session_state.posts = st.session_state.posts.append(new_post, ignore_index=True)
-        st.success("投稿が成功しました！")
-    else:
-        st.error("ユーザー名、交換したいカード、提供できるカードをすべて入力してください。")
-
-# メインエリアに掲示板の投稿を表示
+# タイトル
 st.title("ポケモンカード交換掲示板")
 
-if len(st.session_state.posts) > 0:
-    # 投稿がある場合
-    for idx, post in st.session_state.posts.iterrows():
-        st.subheader(f"投稿者: {post['ユーザー名']}")
-        st.write(f"**交換したいカード**: {post['交換したいカード']}")
-        st.write(f"**提供できるカード**: {post['提供できるカード']}")
-        if post['メッセージ']:
-            st.write(f"**メッセージ**: {post['メッセージ']}")
-        st.write("---")
+# 交換希望の投稿フォーム
+with st.form(key="exchange_form"):
+    user_name = st.text_input("あなたのユーザー名")
+    card_name = st.text_input("交換したいポケモンカード")
+    exchange_for = st.text_input("交換希望のカード")
+    submit_button = st.form_submit_button("交換希望を投稿")
+
+    if submit_button:
+        if user_name and card_name and exchange_for:
+            new_entry = {
+                "ユーザー名": user_name,
+                "ポケモンカード": card_name,
+                "交換希望": exchange_for,
+                "ステータス": "未済"
+            }
+            st.session_state.exchange_data = st.session_state.exchange_data + new_entry
+            st.success("交換希望を投稿しました！")
+        else:
+            st.error("すべての項目を入力してください。")
+
+# 投稿された交換希望の一覧を表示
+st.subheader("交換希望一覧")
+
+# ステータスが「未済」のものを表示
+exchange_df = st.session_state.exchange_data[st.session_state.exchange_data["ステータス"] == "未済"]
+
+if not exchange_df.empty:
+    st.dataframe(exchange_df)
+
+    # 交換を決めた場合の操作（相手が見つかれば「済み」に更新）
+    st.subheader("交換を確定する")
+    selected_user = st.selectbox("交換が成立したユーザー名を選んでください", exchange_df["ユーザー名"].tolist())
+
+    if selected_user:
+        if st.button(f"{selected_user}との交換を確定"):
+            st.session_state.exchange_data.loc[st.session_state.exchange_data["ユーザー名"] == selected_user, "ステータス"] = "済み"
+            st.success(f"{selected_user}さんとの交換が完了しました！")
 else:
-    st.write("現在、投稿はありません。")
+    st.write("現在、交換希望はありません。")
