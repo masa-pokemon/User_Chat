@@ -1,9 +1,16 @@
 import streamlit as st
-import pandas as pd
+import firebase_admin
+from firebase_admin import credentials, firestore
 
-# 初期データの設定（実際のデータはDBに保存することも可能ですが、今回は簡易的にデータフレームを使います）
-if 'posts' not in st.session_state:
-    st.session_state['posts'] = pd.DataFrame(columns=["名前", "提供カード", "欲しいカード", "ステータス"])
+# Firebase Admin SDKの認証
+cred = credentials.Certificate("path/to/your/firebase/serviceAccountKey.json")  # サービスアカウントキーのパスを指定
+firebase_admin.initialize_app(cred)
+
+# Firestoreのインスタンス
+db = firestore.client()
+
+# Firestoreのコレクション
+posts_ref = db.collection('posts')
 
 # タイトル
 st.title("ポケモンカード交換掲示板")
@@ -19,9 +26,14 @@ wanted_card = st.text_input("欲しいカード", "")
 # 送信ボタン
 if st.button("交換掲示板に投稿する"):
     if name and provided_card and wanted_card:
-        # 投稿内容をデータフレームに追加
-        new_post = pd.DataFrame([[name, provided_card, wanted_card, "未交換"]], columns=["名前", "提供カード", "欲しいカード", "ステータス"])
-        st.session_state['posts'] = pd.concat([st.session_state['posts'], new_post], ignore_index=True)
+        # Firestoreに新しい投稿を追加
+        new_post = {
+            "name": name,
+            "provided_card": provided_card,
+            "wanted_card": wanted_card,
+            "status": "未交換"  # 初期状態は「未交換」
+        }
+        posts_ref.add(new_post)
         st.success("交換掲示板に投稿しました！")
     else:
         st.error("すべてのフィールドを入力してください。")
@@ -29,17 +41,24 @@ if st.button("交換掲示板に投稿する"):
 # 投稿の一覧を表示
 st.header("交換掲示板")
 
-# 交換済みのユーザーは「済み」と表示
-for i, row in st.session_state['posts'].iterrows():
-    status = row['ステータス']
-    if st.button(f"{row['名前']}さん: {row['提供カード']} と {row['欲しいカード']}", key=f"btn_{i}"):
+# Firestoreから投稿を取得して表示
+posts = posts_ref.stream()
+
+# 投稿リストの表示
+for post in posts:
+    post_data = post.to_dict()
+    status = post_data['status']
+    
+    if st.button(f"{post_data['name']}さん: {post_data['provided_card']} と {post_data['wanted_card']}", key=post.id):
+        # 交換済みボタンが押された場合
         if status == "未交換":
-            st.session_state['posts'].at[i, 'ステータス'] = "済み"
+            # Firestoreのステータスを「済み」に更新
+            post_ref = posts_ref.document(post.id)
+            post_ref.update({"status": "交換済み"})
             st.experimental_rerun()  # 更新後に再描画
 
-    # ステータス表示
+    # ステータスに応じて表示
     if status == "未交換":
-        st.write(f"{row['名前']}さんの提供カード: {row['提供カード']} → 欲しいカード: {row['欲しいカード']} (未交換)")
+        st.write(f"{post_data['name']}さんの提供カード: {post_data['provided_card']} → 欲しいカード: {post_data['wanted_card']} (未交換)")
     else:
-        st.write(f"{row['名前']}さんの提供カード: {row['提供カード']} → 欲しいカード: {row['欲しいカード']} (交換済み)")
-
+        st.write(f"{post_data['name']}さんの提供カード: {post_data['provided_card']} → 欲しいカード: {post_data['wanted_card']} (交換済み)")
