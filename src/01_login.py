@@ -1,56 +1,51 @@
-# This page is used to login to the application
 import streamlit as st
-from st_pages import add_page_title
-import argparse
-import const
-from modules import common
-from modules.authenticator import common_auth
-from modules.database import database
-import streamlit_authenticator as stauth
-# Setting page title
-common.set_pages()
-add_page_title()
+import pandas as pd
 
-# Get the command line arguments
-parser = argparse.ArgumentParser(
-    description="This page is used to login to the application",
-)
-parser.add_argument(
-    "--use_chatbot",
-    help="Use chatbot",
-    action="store_true",
-)
-args = parser.parse_args()
-use_chatbot = args.use_chatbot
+# 初期データの読み込み（データがない場合は空のDataFrameを作成）
+if 'posts' not in st.session_state:
+    st.session_state.posts = pd.DataFrame(columns=["ユーザー名", "交換したいカード", "提供できるカード", "メッセージ"])
 
-# Update the use_chatbot setting
-db = database.Database()
-current_use_chatbot = db.get_openai_settings_use_character()
-if int(use_chatbot) != current_use_chatbot:
-    db.update_openai_settings_use_character(use_chatbot)
+# サイドバーに投稿フォームを作成
+st.sidebar.title("ポケモンカード交換掲示板")
 
-authenticator = common_auth.get_authenticator()
-name, authentication_status, username = authenticator.login("Login", "main")
+# ユーザー名
+username = st.sidebar.text_input("ユーザー名", "")
 
-if (
-    common.check_if_exists_in_session(const.SESSION_INFO_AUTH_STATUS)
-    and st.session_state[const.SESSION_INFO_AUTH_STATUS]
-):
-    if common.check_if_exists_in_session(const.SESSION_INFO_NAME):
-        # Sucessfully logged in
-        authenticator.logout("Logout", "main", key="unique_key")
-        st.write(f"Welcome *{st.session_state[const.SESSION_INFO_NAME]}*")
-        st.write("Go to the chat page and start chatting!")
-        common.set_pages()
+# 交換したいカード
+wanted_card = st.sidebar.text_input("交換したいカード", "")
+
+# 提供できるカード
+offered_card = st.sidebar.text_input("提供できるカード", "")
+
+# メッセージ
+message = st.sidebar.text_area("メッセージ", "")
+
+# 投稿ボタン
+if st.sidebar.button("投稿する"):
+    if username and wanted_card and offered_card:
+        # 新しい投稿をDataFrameに追加
+        new_post = {
+            "ユーザー名": username,
+            "交換したいカード": wanted_card,
+            "提供できるカード": offered_card,
+            "メッセージ": message
+        }
+        st.session_state.posts = st.session_state.posts.append(new_post, ignore_index=True)
+        st.success("投稿が成功しました！")
     else:
-        st.error("User name is not set in session state.")
-elif common.check_if_exists_in_session(const.SESSION_INFO_AUTH_STATUS):
-    # Not logged in
-    if st.session_state["authentication_status"] is False:
-        st.error("Username/password is incorrect")
-    elif st.session_state["authentication_status"] is None:
-        st.warning("Please enter your username and password")
-    else:
-        st.error(const.ERR_MSG_UNEXPECTED)
+        st.error("ユーザー名、交換したいカード、提供できるカードをすべて入力してください。")
+
+# メインエリアに掲示板の投稿を表示
+st.title("ポケモンカード交換掲示板")
+
+if len(st.session_state.posts) > 0:
+    # 投稿がある場合
+    for idx, post in st.session_state.posts.iterrows():
+        st.subheader(f"投稿者: {post['ユーザー名']}")
+        st.write(f"**交換したいカード**: {post['交換したいカード']}")
+        st.write(f"**提供できるカード**: {post['提供できるカード']}")
+        if post['メッセージ']:
+            st.write(f"**メッセージ**: {post['メッセージ']}")
+        st.write("---")
 else:
-    st.error(const.ERR_MSG_UNEXPECTED)
+    st.write("現在、投稿はありません。")
