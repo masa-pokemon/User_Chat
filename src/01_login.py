@@ -2,63 +2,64 @@ import streamlit as st
 import firebase_admin
 from firebase_admin import credentials, firestore
 
-# Firebase Admin SDKの認証
-cred = credentials.Certificate("path/to/your/firebase/serviceAccountKey.json")  # サービスアカウントキーのパスを指定
+# Firebaseの初期化
+cred = credentials.Certificate("path/to/firebase_credentials.json")
 firebase_admin.initialize_app(cred)
-
-# Firestoreのインスタンス
 db = firestore.client()
 
-# Firestoreのコレクション
-posts_ref = db.collection('posts')
+# Firestoreにカード交換データを追加
+def add_card_trade(user_name, card_name, wants_card):
+    trades_ref = db.collection("trades")
+    trade_data = {
+        "user_name": user_name,
+        "card_name": card_name,
+        "wants_card": wants_card,
+        "status": "交換希望中"
+    }
+    trades_ref.add(trade_data)
 
-# タイトル
+# 交換リストを取得
+def get_trades():
+    trades_ref = db.collection("trades")
+    trades = trades_ref.stream()
+    return [{"id": trade.id, **trade.to_dict()} for trade in trades]
+
+# 交換済みの状態に更新
+def update_trade_status(trade_id):
+    trades_ref = db.collection("trades")
+    trades_ref.document(trade_id).update({"status": "済み"})
+
+# タイトルの表示
 st.title("ポケモンカード交換掲示板")
 
-# 投稿フォーム
-st.header("カード交換を投稿する")
-
-# ユーザー名、提供カード、欲しいカードを入力
-name = st.text_input("名前", "")
-provided_card = st.text_input("提供カード", "")
-wanted_card = st.text_input("欲しいカード", "")
-
-# 送信ボタン
-if st.button("交換掲示板に投稿する"):
-    if name and provided_card and wanted_card:
-        # Firestoreに新しい投稿を追加
-        new_post = {
-            "name": name,
-            "provided_card": provided_card,
-            "wanted_card": wanted_card,
-            "status": "未交換"  # 初期状態は「未交換」
-        }
-        posts_ref.add(new_post)
-        st.success("交換掲示板に投稿しました！")
-    else:
-        st.error("すべてのフィールドを入力してください。")
-
-# 投稿の一覧を表示
-st.header("交換掲示板")
-
-# Firestoreから投稿を取得して表示
-posts = posts_ref.stream()
-
-# 投稿リストの表示
-for post in posts:
-    post_data = post.to_dict()
-    status = post_data['status']
+# 交換希望のカードを追加するフォーム
+with st.form(key="add_trade_form"):
+    user_name = st.text_input("あなたの名前")
+    card_name = st.text_input("交換したいカード名")
+    wants_card = st.text_input("欲しいカード名")
     
-    if st.button(f"{post_data['name']}さん: {post_data['provided_card']} と {post_data['wanted_card']}", key=post.id):
-        # 交換済みボタンが押された場合
-        if status == "未交換":
-            # Firestoreのステータスを「済み」に更新
-            post_ref = posts_ref.document(post.id)
-            post_ref.update({"status": "交換済み"})
-            st.experimental_rerun()  # 更新後に再描画
+    submit_button = st.form_submit_button(label="交換希望を追加")
+    
+    if submit_button:
+        if user_name and card_name and wants_card:
+            add_card_trade(user_name, card_name, wants_card)
+            st.success(f"{user_name}さんの交換希望が追加されました！")
+        else:
+            st.error("全ての項目を入力してください。")
 
-    # ステータスに応じて表示
-    if status == "未交換":
-        st.write(f"{post_data['name']}さんの提供カード: {post_data['provided_card']} → 欲しいカード: {post_data['wanted_card']} (未交換)")
-    else:
-        st.write(f"{post_data['name']}さんの提供カード: {post_data['provided_card']} → 欲しいカード: {post_data['wanted_card']} (交換済み)")
+# 現在の交換掲示板の表示
+st.subheader("現在の交換掲示板")
+
+trades = get_trades()
+
+for trade in trades:
+    st.write(f"【{trade['user_name']}】")
+    st.write(f"交換したいカード: {trade['card_name']}")
+    st.write(f"欲しいカード: {trade['wants_card']}")
+    st.write(f"状態: {trade['status']}")
+    
+    if trade['status'] == "交換希望中":
+        # 交換が成立した場合「済み」にするボタン
+        if st.button(f"交換成立: {trade['user_name']}", key=trade['id']):
+            update_trade_status(trade['id'])
+            st.success(f"{trade['user_name']}さんとの交換が成立しました。")
