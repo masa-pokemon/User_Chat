@@ -23,7 +23,7 @@ with st.form(key="exchange_form"):
                 "交換希望": exchange_for,
                 "ステータス": "未済"
             }
-            st.session_state.exchange_data = st.session_state.exchange_data + new_entry
+            st.session_state.exchange_data = st.session_state.exchange_data.append(new_entry, ignore_index=True)
             st.success("交換希望を投稿しました！")
         else:
             st.error("すべての項目を入力してください。")
