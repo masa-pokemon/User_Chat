@@ -1,67 +1,35 @@
 import streamlit as st
-import firebase_admin
-from firebase_admin import credentials, firestore
-from datetime import datetime
-import firebase_admin
-from firebase_admin import credentials
+from firebase_config import get_trade_posts, add_trade_post
 
-# Firebaseの認証設定
-cred = credentials.Certificate("src/seat-change-optimization-firebase-adminsdk-bjgkk-481de3bcde.json")
-firebase_admin.initialize_app(cred)
+# タイトルとヘッダー
+st.title("ポケモンカード トレード掲示板")
+st.header("カードのトレードを予約しましょう！")
 
-# Firestoreクライアントの初期化
-db = firestore.client()
+# トレードの投稿フォーム
+st.subheader("新しいトレード投稿")
+with st.form(key="trade_form"):
+    title = st.text_input("カード名")
+    description = st.text_area("カードの説明")
+    user_name = st.text_input("あなたの名前")
+    get_card = st.text_input("欲しいカード")
+    submit_button = st.form_submit_button("投稿")
 
-# トレード予約のフォーム
-def create_trade_post():
-    st.title('ポケモンカード トレード掲示板')
-
-    st.subheader('トレード予約の投稿')
-    card_name = st.text_input("カード名")
-    trade_type = st.selectbox("交換希望", ["カードを渡したい", "カードを受け取りたい"])
-    user_name = st.text_input("ユーザー名")
-    trade_date = st.date_input("希望交換日")
-    description = st.text_area("その他の情報")
-
-    if st.button('予約を投稿'):
-        if card_name and trade_type and user_name and description:
-            # Firestoreに投稿を保存
-            post_ref = db.collection('trade_posts').add({
-                'card_name': card_name,
-                'trade_type': trade_type,
-                'user_name': user_name,
-                'trade_date': trade_date.strftime("%Y-%m-%d"),
-                'description': description,
-                'created_at': firestore.SERVER_TIMESTAMP
-            })
-            st.success("トレード予約が投稿されました！")
+    if submit_button:
+        if title and description and user_name and get_card:
+            add_trade_post(title, description, user_name, get_card)
+            st.success("投稿が成功しました！")
         else:
             st.error("すべてのフィールドを入力してください。")
 
-# トレード予約の掲示板表示
-def display_trade_posts():
-    st.subheader('最新のトレード予約')
-    trade_posts_ref = db.collection('trade_posts').order_by('created_at', direction=firestore.Query.DESCENDING).limit(10)
-    posts = trade_posts_ref.stream()
+# 投稿一覧を表示
+st.subheader("トレード掲示板")
+trade_posts = get_trade_posts()
 
-    for post in posts:
-        data = post.to_dict()
-        st.write(f"**カード名**: {data['card_name']}")
-        st.write(f"**交換希望**: {data['trade_type']}")
-        st.write(f"**ユーザー名**: {data['user_name']}")
-        st.write(f"**希望交換日**: {data['trade_date']}")
-        st.write(f"**説明**: {data['description']}")
-        st.markdown("---")
-
-# アプリの実行
-def main():
-    st.sidebar.title("ポケモンカード トレード掲示板")
-    selection = st.sidebar.radio("メニュー", ["トレード予約投稿", "掲示板を見る"])
-
-    if selection == "トレード予約投稿":
-        create_trade_post()
-    elif selection == "掲示板を見る":
-        display_trade_posts()
-
-if __name__ == "__main__":
-    main()
+if trade_posts:
+    for post in trade_posts:
+        st.write(f"**{post['title']}**")
+        st.write(f"説明: {post['description']}")
+        st.write(f"投稿者: {post['user_name']}")
+        st.write("---")
+else:
+    st.write("まだ投稿はありません。")
