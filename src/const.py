@@ -3,8 +3,7 @@ from google.cloud import firestore
 
 
 # Firestoreデータベースの参照
-db = firestore.client()
-
+db = firestore.Client.from_service_account_json("src/seat-change-optimization-firebase-adminsdk-bjgkk-481de3bcde.json")
 def get_trade_posts():
     """Firestoreからトレード掲示板の投稿を取得"""
     posts_ref = db.collection('trade_posts')
