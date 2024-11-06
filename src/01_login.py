@@ -1,129 +1,65 @@
-import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import streamlit as st
+import firebase_admin
+from firebase_admin import credentials, firestore
+from datetime import datetime
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(); // Firebase初期化
-  runApp(MyApp());
-}
+# Firebaseの認証設定
+cred = credentials.Certificate("path/to/your/firebase/secret-key.json")  # Firebase秘密鍵のパス
+firebase_admin.initialize_app(cred)
 
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'ポケモンカード交換掲示板',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: ExchangeBoard(),
-    );
-  }
-}
+# Firestoreクライアントの初期化
+db = firestore.client()
 
-class ExchangeBoard extends StatefulWidget {
-  @override
-  _ExchangeBoardState createState() => _ExchangeBoardState();
-}
+# トレード予約のフォーム
+def create_trade_post():
+    st.title('ポケモンカード トレード掲示板')
 
-class _ExchangeBoardState extends State<ExchangeBoard> {
-  final TextEditingController _cardController = TextEditingController();
-  final TextEditingController _nameController = TextEditingController();
+    st.subheader('トレード予約の投稿')
+    card_name = st.text_input("カード名")
+    trade_type = st.selectbox("交換希望", ["カードを渡したい", "カードを受け取りたい"])
+    user_name = st.text_input("ユーザー名")
+    trade_date = st.date_input("希望交換日")
+    description = st.text_area("その他の情報")
 
-  // Firestoreインスタンス
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+    if st.button('予約を投稿'):
+        if card_name and trade_type and user_name and description:
+            # Firestoreに投稿を保存
+            post_ref = db.collection('trade_posts').add({
+                'card_name': card_name,
+                'trade_type': trade_type,
+                'user_name': user_name,
+                'trade_date': trade_date.strftime("%Y-%m-%d"),
+                'description': description,
+                'created_at': firestore.SERVER_TIMESTAMP
+            })
+            st.success("トレード予約が投稿されました！")
+        else:
+            st.error("すべてのフィールドを入力してください。")
 
-  // 新しい交換リクエストをFirestoreに追加
-  Future<void> _addExchangeRequest() async {
-    String card = _cardController.text.trim();
-    String name = _nameController.text.trim();
+# トレード予約の掲示板表示
+def display_trade_posts():
+    st.subheader('最新のトレード予約')
+    trade_posts_ref = db.collection('trade_posts').order_by('created_at', direction=firestore.Query.DESCENDING).limit(10)
+    posts = trade_posts_ref.stream()
 
-    if (card.isNotEmpty && name.isNotEmpty) {
-      await _firestore.collection('exchanges').add({
-        'name': name,
-        'card': card,
-        'status': 'pending', // 初期状態は「交換待ち」
-      });
+    for post in posts:
+        data = post.to_dict()
+        st.write(f"**カード名**: {data['card_name']}")
+        st.write(f"**交換希望**: {data['trade_type']}")
+        st.write(f"**ユーザー名**: {data['user_name']}")
+        st.write(f"**希望交換日**: {data['trade_date']}")
+        st.write(f"**説明**: {data['description']}")
+        st.markdown("---")
 
-      // フィールドをクリア
-      _cardController.clear();
-      _nameController.clear();
-    }
-  }
+# アプリの実行
+def main():
+    st.sidebar.title("ポケモンカード トレード掲示板")
+    selection = st.sidebar.radio("メニュー", ["トレード予約投稿", "掲示板を見る"])
 
-  // 交換リクエストの状態を更新
-  Future<void> _markAsCompleted(String docId) async {
-    await _firestore.collection('exchanges').doc(docId).update({
-      'status': 'completed',
-    });
-  }
+    if selection == "トレード予約投稿":
+        create_trade_post()
+    elif selection == "掲示板を見る":
+        display_trade_posts()
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('ポケモンカード交換掲示板'),
-      ),
-      body: Column(
-        children: [
-          // 名前入力フィールド
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: TextField(
-              controller: _nameController,
-              decoration: InputDecoration(labelText: 'あなたの名前'),
-            ),
-          ),
-          // カード名入力フィールド
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: TextField(
-              controller: _cardController,
-              decoration: InputDecoration(labelText: '交換したいカード'),
-            ),
-          ),
-          // 交換リクエスト投稿ボタン
-          ElevatedButton(
-            onPressed: _addExchangeRequest,
-            child: Text('交換リクエストを投稿'),
-          ),
-          // 交換リクエストリスト
-          Expanded(
-            child: StreamBuilder<QuerySnapshot>(
-              stream: _firestore.collection('exchanges').snapshots(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(child: CircularProgressIndicator());
-                }
-
-                if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                  return Center(child: Text('交換リクエストはありません。'));
-                }
-
-                var exchangeRequests = snapshot.data!.docs;
-                return ListView.builder(
-                  itemCount: exchangeRequests.length,
-                  itemBuilder: (context, index) {
-                    var exchange = exchangeRequests[index];
-                    return ListTile(
-                      title: Text(exchange['name'] + ' さん'),
-                      subtitle: Text(exchange['card']),
-                      trailing: exchange['status'] == 'completed'
-                          ? Icon(Icons.check, color: Colors.green) // 完了時にチェックアイコン
-                          : ElevatedButton(
-                              onPressed: () {
-                                _markAsCompleted(exchange.id); // 交換完了ボタン
-                              },
-                              child: Text('交換済み'),
-                            ),
-                    );
-                  },
-                );
-              },
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
+if __name__ == "__main__":
+    main()
