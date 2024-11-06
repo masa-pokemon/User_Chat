@@ -1,5 +1,5 @@
 import streamlit as st
-from firebase_config import get_trade_posts, add_trade_post
+from const import get_trade_posts, add_trade_post
 
 # タイトルとヘッダー
 st.title("ポケモンカード トレード掲示板")
