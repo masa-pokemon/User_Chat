@@ -1,36 +1,57 @@
 import streamlit as st
-from const import get_trade_posts, add_trade_post
+import firebase_admin
+from firebase_admin import credentials, firestore
 
-# タイトルとヘッダー
-st.title("ポケモンカード トレード掲示板")
-st.header("カードのトレードを予約しましょう！")
+# Firebase初期化
+cred = credentials.Certificate("src/seat-change-optimization-firebase-adminsdk-bjgkk-481de3bcde.json")
+firebase_admin.initialize_app(cred)
 
-# トレードの投稿フォーム
-st.subheader("新しいトレード投稿")
-with st.form(key="trade_form"):
-    title = st.text_input("カード名")
-    description = st.text_area("カードの説明")
-    user_name = st.text_input("あなたの名前")
-    get_card = st.text_input("欲しいカード")
-    submit_button = st.form_submit_button("投稿")
+# Firestoreインスタンスを取得
+db = firestore.client()
+
+# カード情報をFirestoreから取得
+def get_cards():
+    cards_ref = db.collection("cards")
+    docs = cards_ref.stream()
+    cards = []
+    for doc in docs:
+        cards.append(doc.to_dict())
+    return cards
+
+# 新しいカードをFirestoreに追加
+def add_card(name, price, image_url):
+    db.collection("cards").add({
+        "name": name,
+        "price": price,
+        "image_url": image_url
+    })
+
+# Streamlitアプリの構成
+st.title('ポケカ販売サイト')
+
+# 新しいカードを追加するフォーム
+with st.form(key='add_card_form'):
+    name = st.text_input('カード名')
+    price = st.number_input('価格', min_value=1)
+    image_url = st.text_input('画像URL')
+    submit_button = st.form_submit_button(label='カードを追加')
 
     if submit_button:
-        if title and description and user_name and get_card:
-            add_trade_post(title, description, user_name, get_card)
-            st.success("投稿が成功しました！")
+        if name and price and image_url:
+            add_card(name, price, image_url)
+            st.success(f'{name} が追加されました！')
         else:
-            st.error("すべてのフィールドを入力してください。")
+            st.error('すべてのフィールドを入力してください。')
 
-# 投稿一覧を表示
-st.subheader("トレード掲示板")
-trade_posts = get_trade_posts()
-
-if trade_posts:
-    for post in trade_posts:
-        st.write(f"**{post['title']}**")
-        st.write(f"説明: {post['description']}")
-        st.write(f"投稿者: {post['user_name']}")
-        st.write(f"欲しいカード: {post['get_card']}")
-        st.write("---")
+# 販売中のカードを表示
+st.header("販売中のポケカ")
+cards = get_cards()
+if cards:
+    for card in cards:
+        st.subheader(card['name'])
+        st.image(card['image_url'], width=200)
+        st.write(f"価格: {card['price']}円")
+        if st.button(f"購入 {card['name']}", key=card['name']):
+            st.write(f"{card['name']} を購入しました！")
 else:
-    st.write("まだ投稿はありません。")
+    st.write("現在販売中のカードはありません。")
