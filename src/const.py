@@ -1,11 +1,6 @@
 import firebase_admin
-from firebase_admin import credentials, firestore
+from google.cloud import firestore
 
-# Firebaseのサービスアカウントキーのパスを指定
-cred = credentials.Certificate('src/seat-change-optimization-firebase-adminsdk-bjgkk-481de3bcde.json')
-
-# Firebase Admin SDKの初期化
-firebase_admin.initialize_app(cred)
 
 # Firestoreデータベースの参照
 db = firestore.client()
