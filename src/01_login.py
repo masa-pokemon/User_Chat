@@ -4,7 +4,7 @@ from firebase_admin import credentials, firestore
 from datetime import datetime
 
 # Firebaseの認証設定
-cred = credentials.Certificate("path/to/your/firebase/secret-key.json")  # Firebase秘密鍵のパス
+cred = credentials.Certificate("src/seat-change-optimization-firebase-adminsdk-bjgkk-481de3bcde.json")  # Firebase秘密鍵のパス
 firebase_admin.initialize_app(cred)
 
 # Firestoreクライアントの初期化
