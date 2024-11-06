@@ -30,6 +30,7 @@ if trade_posts:
         st.write(f"**{post['title']}**")
         st.write(f"説明: {post['description']}")
         st.write(f"投稿者: {post['user_name']}")
+        st.write(f"欲しいカード: {post['get_card']}")
         st.write("---")
 else:
     st.write("まだ投稿はありません。")
