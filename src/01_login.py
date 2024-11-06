@@ -2,9 +2,10 @@ import streamlit as st
 import firebase_admin
 from firebase_admin import credentials, firestore
 
-# Firebase初期化
-cred = credentials.Certificate("src/seat-change-optimization-firebase-adminsdk-bjgkk-481de3bcde.json")
-firebase_admin.initialize_app(cred)
+# Firebase初期化（既に初期化されていない場合のみ実行）
+if not firebase_admin._apps:
+    cred = credentials.Certificate("src/seat-change-optimization-firebase-adminsdk-bjgkk-481de3bcde.json")
+    firebase_admin.initialize_app(cred)
 
 # Firestoreインスタンスを取得
 db = firestore.client()
