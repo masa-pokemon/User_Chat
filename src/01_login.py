@@ -22,9 +22,10 @@ def get_cards():
     return cards
 
 # 新しいカードをFirestoreに追加
-def add_card(name, price, image_url, quantity):
+def add_card(card_name, price, image_url, quantity, name):
     db.collection("cards").add({
         "name": name,
+        "card_name": card_name,
         "price": price,
         "image_url": image_url,
         "quantity": quantity,
@@ -55,7 +56,8 @@ st.title('ポケカ販売サイト')
 
 # 新しいカードを追加するフォーム
 with st.form(key='add_card_form'):
-    name = st.text_input('カード名')
+    name = st.text_input('名前')
+    card_name = st.text_input('カード名')
     price = st.text_input('価格を入力 or 交換して欲しいカードを入力')
     image_url = st.text_input('画像URL')
     quantity = st.number_input('残りの数量', min_value=1)
@@ -63,8 +65,8 @@ with st.form(key='add_card_form'):
 
     if submit_button:
         if name and price and image_url and quantity:
-            add_card(name, price, image_url, quantity)
-            st.success(f'{name} が追加されました！')
+            add_card(card_name, price, image_url, quantity, name)
+            st.success(f'{card_name} が追加されました！')
         else:
             st.error('すべてのフィールドを入力してください。')
 
@@ -74,7 +76,8 @@ cards = get_cards()
 
 if cards:
     for card in cards:
-        st.subheader(card['name'])
+        st.subheader(card['card_name'])
+        st.write(f"販売者: {card['name']}")
         st.image(card['image_url'], width=200)
         st.write(f"価格 or 求めているカード: {card['price']}")
         st.write(f"残り数量: {card['quantity']}枚")
@@ -88,7 +91,7 @@ if cards:
             if purchase_button:
                 if buyer_name:
                     if purchase_card(card['id'], buyer_name):
-                        st.success(f"{card['name']} を購入しました！")
+                        st.success(f"{card['card_name']} を購入しました！")
                     else:
                         st.error("在庫がありません。")
                 else:
