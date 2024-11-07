@@ -56,7 +56,7 @@ st.title('ポケカ販売サイト')
 # 新しいカードを追加するフォーム
 with st.form(key='add_card_form'):
     name = st.text_input('カード名')
-    price = st.number_input('価格', min_value=1)
+    price = st.text_input('価格を入力 or 交換して欲しいカードを入力')
     image_url = st.text_input('画像URL')
     quantity = st.number_input('残りの数量', min_value=1)
     submit_button = st.form_submit_button(label='カードを追加')
@@ -76,7 +76,7 @@ if cards:
     for card in cards:
         st.subheader(card['name'])
         st.image(card['image_url'], width=200)
-        st.write(f"価格: {card['price']}円")
+        st.write(f"価格 or 求めているカード: {card['price']}")
         st.write(f"残り数量: {card['quantity']}枚")
         st.write(f"購入者: {', '.join(card['buyers']) if card['buyers'] else 'まだ購入者なし'}")
         
