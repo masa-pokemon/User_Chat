@@ -13,7 +13,7 @@ db = firestore.client()
 
 # 宝くじチケット購入処理
 def buy_lottery_ticket(user_name, user_email):
-    ticket_number = random.randint(100, 999)  # ランダムなチケット番号を生成
+    ticket_number = random.randint(10, 99)  # ランダムなチケット番号を生成
     ticket_data = {
         'user_name': user_name,
         'user_email': user_email,
@@ -40,7 +40,7 @@ def update_ticket_status(ticket_number, status):
 # 当選判定
 def check_lottery_result(ticket_number):
     # 例えば、固定の当選番号を決める（ここでは123456が当選）
-    winning_number = 125
+    winning_number = 12
     if ticket_number == winning_number:
         return '当選'
     else:
