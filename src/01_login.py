@@ -1,30 +1,61 @@
 import streamlit as st
-from diffusers import StableDiffusionPipeline
-import torch
-from PIL import Image
+import time
+import io
+from pydub import AudioSegment
+from io import BytesIO
 
-# Stable Diffusionパイプラインの初期化
-@st.cache_resource
-def load_model():
-    model = StableDiffusionPipeline.from_pretrained("CompVis/stable-diffusion-v1-4-original", torch_dtype=torch.float16)
-    model.to("cuda")
-    return model
+# 音声録音用のJavaScriptコードを実行
+def audio_recorder():
+    # JavaScriptコードを使ってブラウザで音声録音を行う
+    st.markdown(
+        """
+        <script>
+        let audioBlob = null;
+        let recorder;
+        let audioChunks = [];
 
-# モデルの読み込み
-model = load_model()
+        const startRecording = async () => {
+            audioChunks = [];
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            recorder = new MediaRecorder(stream);
+            recorder.ondataavailable = event => {
+                audioChunks.push(event.data);
+            };
+            recorder.onstop = () => {
+                audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                const audioUrl = URL.createObjectURL(audioBlob);
+                const audio = new Audio(audioUrl);
+                audio.controls = true;
+                document.getElementById('audioPlayer').src = audioUrl;
+                document.getElementById('audioPlayer').style.display = 'block';
+            };
+            recorder.start();
+        };
 
-# StreamlitのUIを作成
-st.title("Stable Diffusion 画像生成")
-st.write("テキストを入力して画像を生成しましょう！")
+        const stopRecording = () => {
+            recorder.stop();
+        };
+        </script>
+        """,
+        unsafe_allow_html=True
+    )
 
-# ユーザーからのテキスト入力を取得
-prompt = st.text_input("生成したい画像の説明を入力してください:")
+    # 録音開始ボタン
+    start_button = st.button("録音開始")
+    if start_button:
+        st.markdown('<script>startRecording();</script>', unsafe_allow_html=True)
+    
+    # 録音停止ボタン
+    stop_button = st.button("録音停止")
+    if stop_button:
+        st.markdown('<script>stopRecording();</script>', unsafe_allow_html=True)
+    
+    # 録音した音声を表示
+    st.markdown('<audio id="audioPlayer" style="display:none;" controls></audio>', unsafe_allow_html=True)
 
-if prompt:
-    # 画像生成
-    with st.spinner("画像生成中..."):
-        image = model(prompt).images[0]
+    # 音声ファイルを保存する処理（録音後）
+    if stop_button:
+        time.sleep(2)  # 少し待ってから処理を開始
+        st.audio("audio.wav", format="audio/wav")
 
-    # 生成した画像を表示
-    st.image(image, caption="生成された画像", use_column_width=True)
-
+audio_recorder()
