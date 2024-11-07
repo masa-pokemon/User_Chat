@@ -1,61 +1,19 @@
-
 import streamlit as st
-import random
-import firebase_admin
-from firebase_admin import credentials, firestore
+from diffusers import StableDiffusionPipeline
+import torch
 
-# Firebase初期化
-if not firebase_admin._apps:
-    cred = credentials.Certificate("src/seat-change-optimization-firebase-adminsdk-bjgkk-481de3bcde.json")  # Firebaseの認証情報
-    firebase_admin.initialize_app(cred)
+# Stable Diffusionのパイプラインのロード（GPUを使用する場合）
+pipe = StableDiffusionPipeline.from_pretrained("CompVis/stable-diffusion-v1-4-original", torch_dtype=torch.float32)
+pipe.to("cuda")
 
-# Firestoreにアクセス
-db = firestore.client()
+def generate_image(prompt):
+    image = pipe(prompt).images[0]
+    return image
 
-# StreamlitのUIを作成
-st.title("ランダムな色の丸ゲーム")
+st.title("Stable Diffusion 画像生成アプリ")
 
-# ランダムで色を生成する関数
-def generate_random_circle():
-    colors = ['赤', '赤', '緑', '青', '黄色','黄色', '黄色', '黄色', '紫', '紫', '紫', '紫', '紫', '紫', '紫', '紫', '紫', '紫', '紫', '紫', '紫', '紫', '紫', '紫', '紫', '紫', '紫', '紫', '紫', '紫', '紫', '紫', '紫', '紫', '紫', '紫', '紫', '紫', '紫', '紫', '紫', '紫', '紫', '紫', '紫', '紫', '紫', '紫', '紫', '紫', '紫', '紫', '紫',]
-    chosen_color = random.choice(colors)
-    return chosen_color
+prompt = st.text_area("画像を生成するプロンプトを入力してください")
 
-# ゲームの実行
-if st.button("ランダムな丸を出す"):
-    color = generate_random_circle()
-    
-    if color == '緑':
-        result = "スコヴィランex！"
-    elif color == '赤':
-        result = "カウンターキャッチャー！"
-    elif color == '青':
-        result = "旧裏カード"
-    elif color == '黄色':
-        result = "ar1枚"
-    else:
-        result = "はずれ"
-
-    # 結果を表示
-    st.write(f"出た色: {color}")
-    st.write(result)
-
-    # Firebaseに結果を保存
-    data = {
-        'color': color,
-        'result': result
-    }
-    db.collection('game_results').add(data)
-
-    st.write("結果はFirebaseに保存されました！")
-
-# Firebaseから過去の結果を取得して表示
-st.subheader("過去の結果")
-
-# 過去のゲーム結果をFirestoreから取得
-results_ref = db.collection('game_results')
-results = results_ref.stream()
-
-for result in results:
-    data = result.to_dict()
-    st.write(f"色: {data['color']} - 結果: {data['result']}")
+if prompt:
+    image = generate_image(prompt)
+    st.image(image, caption="生成された画像", use_column_width=True)
