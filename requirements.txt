@@ -1,6 +1,2 @@
 streamlit 
-torch 
-torchvision 
-diffusers 
-transformers
-pydub
+firebase-admin
