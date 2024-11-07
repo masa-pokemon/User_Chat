@@ -1,30 +1,32 @@
 import streamlit as st
+from PIL import Image
 from diffusers import StableDiffusionPipeline
 import torch
 
 # モデルのロード
-st.title("画像生成AI - Stable Diffusion")
-st.write("このツールを使って、テキストから画像を生成できます。")
-
-# モデルとデバイスの設定
-device = "cuda" if torch.cuda.is_available() else "cpu"
-st.write(f"使用するデバイス: {device}")
-
-# Stable Diffusionパイプラインの読み込み
 @st.cache_resource
 def load_model():
-    return StableDiffusionPipeline.from_pretrained("CompVis/stable-diffusion-v-1-4-original", torch_dtype=torch.float32).to(device)
+    pipe = StableDiffusionPipeline.from_pretrained("CompVis/stable-diffusion-v-1-4-original", torch_dtype=torch.float16)
+    pipe.to("cuda")
+    return pipe
 
-model = load_model()
+# モデルのロード
+pipe = load_model()
 
-# ユーザーから入力を受け取る
-prompt = st.text_input("画像の内容を入力してください:", "A beautiful landscape with mountains and a sunset")
+# アプリのタイトル
+st.title("AI画像生成器")
+
+# ユーザーからのテキスト入力
+prompt = st.text_input("生成したい画像の説明を入力してください:")
 
 # 画像生成ボタン
 if st.button("画像を生成"):
-    with st.spinner("画像を生成しています..."):
-        # 画像生成
-        generated_image = model(prompt).images[0]
-
-        # 生成した画像を表示
-        st.image(generated_image, caption="生成された画像", use_column_width=True)
+    if prompt:
+        with st.spinner("画像を生成中..."):
+            # 画像を生成
+            image = pipe(prompt).images[0]
+            
+            # 生成された画像を表示
+            st.image(image, caption="生成された画像", use_column_width=True)
+    else:
+        st.warning("画像生成のために、プロンプトを入力してください。")
