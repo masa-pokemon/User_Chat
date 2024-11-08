@@ -3,3 +3,4 @@ firebase_admin
 torch 
 diffusers
 transformers
+accelerate
