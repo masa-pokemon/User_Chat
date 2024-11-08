@@ -2,3 +2,4 @@ streamlit
 firebase_admin
 torch 
 diffusers
+transformers
