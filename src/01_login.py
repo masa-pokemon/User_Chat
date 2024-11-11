@@ -14,9 +14,15 @@ data = {
         "Urgent: The server is down.",
         "Let's schedule a meeting.",
         "Your package has been shipped."
+        "こんにちは、先生"
     ],
     "recipient": [
-        "sales", "manager", "technical_support", "manager", "customer_service"
+        "sales", 
+        "manager", 
+        "technical_support", 
+        "manager", 
+        "customer_service",
+        "teacher"
     ]
 }
 
