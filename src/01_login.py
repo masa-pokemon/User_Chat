@@ -1,248 +1,120 @@
-from typing import Optional
-
+import base64
+import boto3
+import json
+import os
 import streamlit as st
-from streamlit_drawable_canvas import st_canvas
 from PIL import Image
+import io
 
-from sd2.generate import PIPELINE_NAMES, generate, SD_20, SD_21, SD_XL_TURBO, SD_XL_10, SD_XL_10_REFINER
+CLAUDE_MODEL = "anthropic.claude-3-haiku-20240307-v1:0"
 
-DEFAULT_PROMPT = "border collie puppy"
-DEFAULT_WIDTH, DEFAULT_HEIGHT = 512, 512
-OUTPUT_IMAGE_KEY = "output_img"
-LOADED_IMAGE_KEY = "loaded_image"
+STABILITY_MODELS = {
+    "Stable Image Core": "stability.stable-image-core-v1:0",
+    "SD3 Large": "stability.sd3-large-v1:0",
+    "Stable Image Ultra": "stability.stable-image-ultra-v1:0"
+}
 
+session = boto3.Session(profile_name='<プロフィール名>')
 
-def get_image(key: str) -> Optional[Image.Image]:
-    if key in st.session_state:
-        return st.session_state[key]
-    return None
+bedrock_runtime = session.client("bedrock-runtime", region_name="us-west-2")
 
+st.title("新しいStability AIモデルで画像生成を試そう")
 
-def set_image(key: str, img: Image.Image):
-    st.session_state[key] = img
+selected_model = st.selectbox("使用するモデルを選択してください:", list(STABILITY_MODELS.keys()))
 
+generation_mode = "text-to-image"
+if selected_model == "SD3 Large":
+    generation_mode = st.radio("生成モードを選択してください:", ["text-to-image", "image-to-image"])
 
-def prompt_and_generate_button(prefix, pipeline_name: PIPELINE_NAMES, **kwargs):
-    prompt = st.text_area(
-        "Prompt",
-        value=DEFAULT_PROMPT,
-        key=f"{prefix}-prompt",
-    )
-    negative_prompt = st.text_area(
-        "Negative prompt",
-        value="",
-        key=f"{prefix}-negative-prompt",
-    )
-    col1, col2 = st.columns(2)
-    with col1:
-        steps = st.slider(
-            "Number of inference steps",
-            min_value=1,
-            max_value=200,
-            value=20,
-            key=f"{prefix}-inference-steps",
-        )
-    with col2:
-        guidance_scale = st.slider(
-            "Guidance scale",
-            min_value=0.0,
-            max_value=20.0,
-            value=7.5,
-            step=0.5,
-            key=f"{prefix}-guidance-scale",
-        )
-    enable_attention_slicing = st.checkbox(
-        "Enable attention slicing (enables higher resolutions but is slower)",
-        key=f"{prefix}-attention-slicing",
-    )
-    enable_cpu_offload = st.checkbox(
-        "Enable CPU offload (if you run out of memory, e.g. for XL model)",
-        key=f"{prefix}-cpu-offload",
-        value=False,
-    )
+japanese_prompt = st.text_input("画像生成のための日本語プロンプトを入力してください:")
 
-    if st.button("Generate image", key=f"{prefix}-btn"):
-        with st.spinner("Generating image..."):
-            image = generate(
-                prompt,
-                pipeline_name,
-                negative_prompt=negative_prompt,
-                steps=steps,
-                guidance_scale=guidance_scale,
-                enable_attention_slicing=enable_attention_slicing,
-                enable_cpu_offload=enable_cpu_offload,
-                **kwargs,
-            )
-            set_image(OUTPUT_IMAGE_KEY, image.copy())
-        st.image(image)
+uploaded_file = None
+if generation_mode == "image-to-image":
+    uploaded_file = st.file_uploader("元の画像をアップロードしてください", type=["png", "jpg", "jpeg"])
 
+def translate_to_english(japanese_text):
+    body = json.dumps({
+        "anthropic_version": "bedrock-2023-05-31",
+        "max_tokens": 1000,
+        "messages": [
+            {
+                "role": "user",
+                "content": f"""あなたは日本語を英語に翻訳し、画像生成に適したプロンプトを作成するエキスパートです。
+                以下の日本語テキストを英語に翻訳し、Stable Diffusionのような画像生成AIで使用するのに適したプロンプトに変換してください。
+                翻訳されたプロンプトのみを出力してください。
 
-def width_and_height_sliders(prefix):
-    col1, col2 = st.columns(2)
-    with col1:
-        width = st.slider(
-            "Width",
-            min_value=64,
-            max_value=1600,
-            step=16,
-            value=768,
-            key=f"{prefix}-width",
-        )
-    with col2:
-        height = st.slider(
-            "Height",
-            min_value=64,
-            max_value=1600,
-            step=16,
-            value=768,
-            key=f"{prefix}-height",
-        )
-    return width, height
+                日本語テキスト: {japanese_text}"""
+            }
+        ]
+    })
 
+    response = bedrock_runtime.invoke_model(modelId=CLAUDE_MODEL, body=body)
+    response_body = json.loads(response['body'].read())
+    return response_body['content'][0]['text'].strip()
 
-def image_uploader(prefix):
-    image = st.file_uploader("Image", ["jpg", "png"], key=f"{prefix}-uploader")
-    if image:
-        image = Image.open(image)
-        print(f"loaded input image of size ({image.width}, {image.height})")
-        return image
+def resize_image(image, max_size=1536):
+    width, height = image.size
+    if width > max_size or height > max_size:
+        ratio = max_size / max(width, height)
+        new_size = (int(width * ratio), int(height * ratio))
+        return image.resize(new_size, Image.LANCZOS)
+    return image
 
-    return get_image(LOADED_IMAGE_KEY)
+if st.button("画像生成"):
+    if japanese_prompt:
+        with st.spinner('プロンプトを翻訳中...'):
+            english_prompt = translate_to_english(japanese_prompt)
+            st.write("翻訳されたプロンプト:", english_prompt)
 
+        with st.spinner('画像を生成中...'):
+            try:
+                body = {
+                    "prompt": english_prompt,
+                    "mode": generation_mode
+                }
 
-def inpainting():
-    image = image_uploader("inpainting")
+                if generation_mode == "image-to-image":
+                    if uploaded_file is not None:
+                        image = Image.open(uploaded_file)
+                        image = resize_image(image) 
+                        buffered = io.BytesIO()
+                        image.save(buffered, format="PNG")
+                        image_bytes = buffered.getvalue()
+                        base64_image = base64.b64encode(image_bytes).decode("utf-8")
+                        body["image"] = base64_image
+                        body["strength"] = 0.75 
+                    else:
+                        st.error("画像をアップロードしてください。")
+                        st.stop()
 
-    if not image:
-        return None, None
+                response = bedrock_runtime.invoke_model(
+                    modelId=STABILITY_MODELS[selected_model],
+                    body=json.dumps(body)
+                )
+                output_body = json.loads(response["body"].read().decode("utf-8"))
+                base64_output_image = output_body["images"][0]
+                image_data = base64.b64decode(base64_output_image)
 
-    brush_size = st.number_input("Brush Size", value=50, min_value=1, max_value=100)
+                image = Image.open(io.BytesIO(image_data))
 
-    canvas_result = st_canvas(
-        fill_color="rgba(255, 255, 255, 0.0)",
-        stroke_width=brush_size,
-        stroke_color="#FFFFFF",
-        background_color="#000000",
-        background_image=image,
-        update_streamlit=True,
-        height=image.height,
-        width=image.width,
-        drawing_mode="freedraw",
-        key="inpainting-canvas",
-    )
+                st.image(image, caption=f"生成された画像 (モデル: {selected_model}, モード: {generation_mode})")
 
-    if not canvas_result or canvas_result.image_data is None:
-        return None, None
+                output_dir = "output"
+                if not os.path.exists(output_dir):
+                    os.makedirs(output_dir)
+                
+                i = 1
+                while os.path.exists(os.path.join(output_dir, f"img_{i}.png")):
+                    i += 1
 
-    mask = canvas_result.image_data
-    mask = mask[:, :, -1] > 0
-    if mask.sum() > 0:
-        mask = Image.fromarray(mask)
-        st.image(mask)
-        return image, mask
+                image_path = os.path.join(output_dir, f"img_{i}.png")
+                image.save(image_path)
 
-    return None, None
+                st.success(f"生成された画像が {image_path} に保存されました")
 
-
-def txt2img_tab():
-    prefix = "txt2img"
-    width, height = width_and_height_sliders(prefix)
-    version = st.selectbox("Model version", [SD_21, SD_XL_10, SD_XL_TURBO], key=f"{prefix}-version")
-    st.markdown(
-        "**Note**: XL 1.0 is slower and requires more memory. You can use CPU offload to reduce memory usage. You can refine the image afterwards with img2img"
-    )
-    prompt_and_generate_button(
-        prefix, "txt2img", width=width, height=height, version=version
-    )
-
-
-def inpainting_tab():
-    prefix = "inpaint"
-    col1, col2 = st.columns(2)
-
-    with col1:
-        image_input, mask_input = inpainting()
-
-    with col2:
-        if image_input and mask_input:
-            version = st.selectbox(
-                "Model version", [SD_20, SD_XL_10], key="inpaint-version"
-            )
-            strength = st.slider(
-                "Strength of inpainting (1.0 essentially ignores the masked area of the original input image)",
-                min_value=0.0,
-                max_value=1.0,
-                value=1.0,
-                step=0.05,
-                key=f"{prefix}-strength",
-            )
-            prompt_and_generate_button(
-                prefix,
-                "inpaint",
-                image_input=image_input,
-                mask_input=mask_input,
-                version=version,
-                strength=strength,
-            )
-
-
-def img2img_tab():
-    prefix = "img2img"
-    col1, col2 = st.columns(2)
-
-    with col1:
-        image = image_uploader(prefix)
-        if image:
-            st.image(image)
-
-    with col2:
-        if image:
-            version = st.selectbox(
-                "Model version", [SD_21, SD_XL_10_REFINER], key=f"{prefix}-version"
-            )
-            strength = st.slider(
-                "Strength (1.0 ignores the existing image so it's not a useful value)",
-                min_value=0.0,
-                max_value=1.0,
-                value=0.3,
-                step=0.05,
-                key=f"{prefix}-strength",
-            )
-            prompt_and_generate_button(
-                prefix, "img2img", image_input=image, version=version, strength=strength
-            )
-
-
-def main():
-    st.set_page_config(layout="wide")
-    st.title("Stable Diffusion 2.0/2.1/XL Simple Playground")
-
-    tab1, tab2, tab3 = st.tabs(
-        ["Text to Image (txt2img)", "Inpainting", "Image to image (img2img)"]
-    )
-    with tab1:
-        txt2img_tab()
-
-    with tab2:
-        inpainting_tab()
-
-    with tab3:
-        img2img_tab()
-
-    with st.sidebar:
-        st.header("Latest Output Image")
-        output_image = get_image(OUTPUT_IMAGE_KEY)
-        if output_image:
-            st.image(output_image)
-            if st.button("Use this image for img2img"):
-                set_image(LOADED_IMAGE_KEY, output_image.copy())
-                st.experimental_rerun()
-            st.markdown(
-                "The button should also work for inpainting. However, there is a bug in the inpainting canvas so clicking the button will sometimes work for inpainting and sometimes not. It depends on whether you have previously uploaded an image in inpainting."
-            )
-        else:
-            st.markdown("No output generated yet")
-
-
-if __name__ == "__main__":
-    main()
+            except Exception as e:
+                st.error(f"エラーが発生しました: {str(e)}")
+                if 'output_body' in locals():
+                    st.write("APIレスポンス全体:", output_body)
+    else:
+        st.warning("プロンプトを入力してください。")
