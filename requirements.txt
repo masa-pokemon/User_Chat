@@ -1,4 +1,4 @@
 boto3 
 streamlit 
 pillow
-a
+pokemon
