@@ -1,3 +1,4 @@
-boto3
 streamlit
-pillow
+firebase-admin
+pandas
+scikit-learn
