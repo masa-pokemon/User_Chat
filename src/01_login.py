@@ -14,7 +14,7 @@ STABILITY_MODELS = {
     "Stable Image Ultra": "stability.stable-image-ultra-v1:0"
 }
 
-session = boto3.Session(profile_name='<プロフィール名>')
+session = boto3.Session(profile_name='masapokemon')
 
 bedrock_runtime = session.client("bedrock-runtime", region_name="us-west-2")
 
