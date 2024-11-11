@@ -1,4 +1,4 @@
 boto3 
 streamlit 
 pillow
-pokemon
+pokeapi-sd
