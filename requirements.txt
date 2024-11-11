@@ -1,5 +1,4 @@
-streamlit
+streamlit 
+diffusers 
 torch 
-torchvision 
-pillow 
-taming-transformers
+transformers
