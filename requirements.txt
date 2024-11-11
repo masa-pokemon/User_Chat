@@ -1,6 +1,5 @@
 streamlit 
-firebase_admin
 torch 
+torchvision 
+transformers 
 diffusers
-transformers
-accelerate
