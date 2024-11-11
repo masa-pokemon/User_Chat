@@ -7,7 +7,6 @@ import torch
 @st.cache_resource
 def load_model():
     model = StableDiffusionPipeline.from_pretrained("stabilityai/stable-diffusion-2", torch_dtype=torch.float16)
-    model.to("cuda")  # GPUがあればGPUを使用
     return model
 
 # モデルを読み込む
