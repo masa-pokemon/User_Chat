@@ -1,4 +1,5 @@
-streamlit 
-diffusers 
-torch 
+streamlit
+diffusers
 transformers
+torch
+pillow
