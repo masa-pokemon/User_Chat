@@ -1,84 +1,79 @@
 import streamlit as st
 import pandas as pd
 from sklearn.model_selection import train_test_split
-from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.linear_model import LogisticRegression
-from sklearn.pipeline import make_pipeline
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
+import joblib
 
-# サンプルデータ
-data = {
-    "message": [
-        "Hello, can you send me the report?",
-        "Please confirm your meeting time.",
-        "Urgent: The server is down.",
-        "Let's schedule a meeting.",
-        "Your package has been shipped."
-        "こんにちは、先生"
-    ],
-    "recipient": [
-        "sales", 
-        "manager", 
-        "technical_support", 
-        "manager", 
-        "customer_service",
-        "teacher"
-    ]
-}
+# データ読み込み
+@st.cache_data
+def load_data():
+    # CSVファイルをアップロード
+    uploaded_file = st.file_uploader("CSVファイルをアップロードしてください", type=["csv"])
+    if uploaded_file is not None:
+        data = pd.read_csv(uploaded_file)
+        return data
+    return None
 
-df = pd.DataFrame(data)
+# モデルのトレーニング
+def train_model(data):
+    # メッセージと宛先を分割
+    X = data['message']
+    y = data['recipient']
 
-# 特徴量とラベルの設定
-X = df["message"]
-y = df["recipient"]
+    # テキストデータの特徴量化
+    vectorizer = TfidfVectorizer(max_features=5000)
+    X_vec = vectorizer.fit_transform(X)
 
-# トレーニングデータとテストデータに分割
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    # トレーニングデータとテストデータに分割
+    X_train, X_test, y_train, y_test = train_test_split(X_vec, y, test_size=0.2, random_state=42)
 
-# モデルのパイプラインを作成
-model = make_pipeline(CountVectorizer(), LogisticRegression())
-model.fit(X_train, y_train)
+    # ランダムフォレスト分類器を使用
+    clf = RandomForestClassifier(n_estimators=100, random_state=42)
+    clf.fit(X_train, y_train)
 
-# テストデータに対する精度を表示
-y_pred = model.predict(X_test)
-accuracy = accuracy_score(y_test, y_pred)
+    # テストデータで予測
+    y_pred = clf.predict(X_test)
+    accuracy = accuracy_score(y_test, y_pred)
+    st.write(f"モデルの精度: {accuracy:.2f}")
 
-# Streamlit アプリケーションの設定
-st.title("メッセージ宛先予測 AI")
+    # モデルとベクトライザーを保存
+    joblib.dump(clf, 'message_recipient_model.pkl')
+    joblib.dump(vectorizer, 'vectorizer.pkl')
 
-st.write("メッセージに基づいて、宛先を予測します。")
-st.write(f"モデルの精度: {accuracy:.2f}")
+    return clf, vectorizer
 
-# セッション状態を使って前回のメッセージを保存
-if "previous_message" not in st.session_state:
-    st.session_state.previous_message = None
-    st.session_state.previous_prediction = None
+# メッセージの予測
+def predict_recipient(message, clf, vectorizer):
+    message_vec = vectorizer.transform([message])
+    prediction = clf.predict(message_vec)
+    return prediction[0]
 
-# ユーザー入力を取得
-user_input = st.text_area("メッセージを入力してください:")
+# Streamlit UIの設定
+def main():
+    st.title("メッセージ予測AI")
+    
+    # データの読み込み
+    data = load_data()
+    if data is not None:
+        st.write(data.head())
 
-# 予測ボタンが押されたとき
-if st.button("予測"):
-    if user_input:
-        # 1つ前のメッセージと現在のメッセージを組み合わせる
-        if st.session_state.previous_message:
-            combined_input = st.session_state.previous_message + " " + user_input
-        else:
-            combined_input = user_input
+        # モデルのトレーニング
+        if st.button('モデルをトレーニング'):
+            clf, vectorizer = train_model(data)
+            st.success("モデルのトレーニングが完了しました！")
         
-        # 予測を行う
-        prediction = model.predict([combined_input])[0]
-
-        # 結果を表示
-        st.write(f"予測された宛先: {prediction}")
-        
-        # 現在のメッセージと予測を保存（次回の入力で使う）
-        st.session_state.previous_message = user_input
-        st.session_state.previous_prediction = prediction
+        # メッセージの入力と予測
+        message_input = st.text_area("予測するメッセージを入力してください")
+        if message_input:
+            if 'clf' in globals() and 'vectorizer' in globals():
+                recipient = predict_recipient(message_input, clf, vectorizer)
+                st.write(f"予測された受取人: {recipient}")
+            else:
+                st.warning("まずモデルをトレーニングしてください")
     else:
-        st.write("メッセージを入力してください。")
+        st.warning("CSVファイルをアップロードしてください")
 
-# 前回のメッセージと予測がある場合は表示
-if st.session_state.previous_message:
-    st.write(f"前回のメッセージ: {st.session_state.previous_message}")
-    st.write(f"前回の予測された宛先: {st.session_state.previous_prediction}")
+if __name__ == "__main__":
+    main()
