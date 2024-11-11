@@ -8,8 +8,8 @@ RUN apt-get install -y python3-pip python3-dev
 
 RUN pip3 install --upgrade pip
 
+RUN streamlit cache clear
 COPY requirements.txt /tmp/requirements.txt
 RUN pip3 install -r /tmp/requirements.txt
-RUN streamlit cache clear
 
 WORKDIR /home/workspace
