@@ -1,5 +1,4 @@
 streamlit
-diffusers
 torch
+torchvision
 transformers
-accelerate
