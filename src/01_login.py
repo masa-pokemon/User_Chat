@@ -9,6 +9,7 @@ ydl_opts = {
 text = st.text_input("URL：")
 text1 = ""
 if text != text1:
+    st.cache.clear() 
     text1 = text
     #動画のURLを指定
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
