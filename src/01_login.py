@@ -1,4 +1,5 @@
 import requests
+import streamlit as st
 
 # 取得したいURLを指定
 url = 'https://www.youtube.com/'
@@ -8,6 +9,6 @@ response = requests.get(url)
 
 # ステータスコードが200 (OK) ならHTMLを表示
 if response.status_code == 200:
-    print(response.text)  # HTML内容を表示
+    st.html(response.text)  # HTML内容を表示
 else:
-    print(f"Failed to retrieve the page. Status code: {response.status_code}")
+    st.html(f"Failed to retrieve the page. Status code: {response.status_code}")
