@@ -1,9 +1,7 @@
-import urllib.request 
 import streamlit as st
 
-def fetch_html(url: str) -> str:
-    with urllib.request.urlopen(url) as res:
-        html = res.read().decode()
-    return html
+import requests # URLからHTMLを取得するための外部ライブラリ
+page = requests.get("https://www.google.com/") # URLを指定してHTTPレスポンスを取得
+print(page)
 
 st.html(fetch_html('https://www.youtube.com/'))
