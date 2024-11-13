@@ -7,4 +7,4 @@ import streamlit.components.v1 as stc
 load_url = "https://www.ymori.com/books/python2nen/test1.html"
 html = requests.get(load_url)
 soup = BeautifulSoup(html.content, "html.parser")
-stc.html(soup)
+st.components.v1.html(soup)
