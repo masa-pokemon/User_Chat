@@ -1,7 +1,9 @@
 import streamlit as st
+import requests
+from bs4 import BeautifulSoup
+# Webページを取得して解析する
 
-import requests # URLからHTMLを取得するための外部ライブラリ
-page = requests.get("https://www.google.com/") # URLを指定してHTTPレスポンスを取得
-print(page)
-
-st.html(page)
+load_url = "https://www.ymori.com/books/python2nen/test1.html"
+html = requests.get(load_url)
+soup = BeautifulSoup(html.content, "html.parser")
+st.html(soup)
