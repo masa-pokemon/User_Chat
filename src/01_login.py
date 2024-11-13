@@ -1,8 +1,4 @@
-import requests
-from bs4 import BeautifulSoup
 import urllib.request 
-import csv
-import re
 import streamlit as st
 
 def fetch_html(url: str) -> str:
