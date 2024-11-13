@@ -10,7 +10,7 @@ text = st.text_input("URL：")
 text1 = ""
 if text != text1:
     import os
-    if os.path.isfile('video.mp4');
+    if os.path.isfile('video.mp4'):
         os.remove('video.mp4')
     text1 = text
     #動画のURLを指定
