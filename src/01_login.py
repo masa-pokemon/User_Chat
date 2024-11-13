@@ -6,7 +6,8 @@ ydl_opts = {
     'format': 'best',
     'outtmpl':'video.%(ext)s',
 }
-if text == st.text_input("URL："):
+text = st.text_input("URL：")
+if text:
     #動画のURLを指定
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         ydl.download(text)
