@@ -1,11 +1,4 @@
-import streamlit.components.v1 as components
-import urllib.request
 import streamlit as st
-
-url = 'https://www.youtube.com/'
-html = urllib.request.urlopen(url).read().decode('utf-8')
-st.html(html)
-
 import yt_dlp
 ydl_opts = {'format': 'best','outtmpl':'video.%(ext)s',}
 text = st.text_input("URL：")
