@@ -6,5 +6,5 @@ def fetch_html(url: str) -> str:
         html = res.read().decode()
     return html
 
-html = fetch_html('https://www.youtube.com')
+html = fetch_html('https://www.youtube.com/')
 st.markdown(html,unsafe_allow_html=True)
