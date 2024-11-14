@@ -6,4 +6,5 @@ def fetch_html(url: str) -> str:
         html = res.read().decode()
     return html
 
-st.markdown(fetch_html('https://www.google.co.jp/'),unsafe_allow_html=True)
+html = fetch_html('https://www.google.co.jp/')
+st.markdown(html,unsafe_allow_html=True)
