@@ -2,7 +2,8 @@ import streamlit.components.v1 as components
 
 import streamlit as st
 st.title('text')
-components.iframe("https://www.google.co.jp/", height=500)
+components.iframe("https://www.youtube.com", height=500)
+
 import yt_dlp
 ydl_opts = {'format': 'best','outtmpl':'video.%(ext)s',}
 text = st.text_input("URL：")
