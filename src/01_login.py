@@ -1,3 +1,5 @@
+import streamlit.components.v1 as components
+components.iframe("https://www.google.co.jp/", height=500)
 import streamlit as st
 import yt_dlp
 ydl_opts = {'format': 'best','outtmpl':'video.%(ext)s',}
