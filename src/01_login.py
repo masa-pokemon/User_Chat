@@ -1,5 +1,6 @@
 import streamlit.components.v1 as components
 import urllib.request
+import streamlit as st
 
 url = 'https://www.youtube.com/'
 html = urllib.request.urlopen(url).read().decode('utf-8')
