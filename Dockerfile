@@ -10,7 +10,6 @@ RUN pip3 install --upgrade pip
 
 RUN streamlit cache clear
 COPY requirements.txt /tmp/requirements.txt
-RUN git clone https://github.com/smogon/pokemon-showdown.git
 RUN pip3 install -r /tmp/requirements.txt
 
 
