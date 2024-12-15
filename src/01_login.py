@@ -1,7 +1,7 @@
 import streamlit as st
 import yt_dlp
 ydl_opts = {'format': 'best','outtmpl':'video.%(ext)s',}
-text = st.text_input("URL：")
+text = st.text_input("youtube")
 text1 = ""
 if text != text1:
     import os
@@ -13,3 +13,14 @@ if text != text1:
         video_file = open("video.mp4", "rb")
         video_bytes = video_file.read()
         st.video(video_bytes)
+
+import niconico_dl
+text2 = st.text_input("niconico")
+# Normal
+def start():
+    text2
+    link = niconico_dl.NicoNicoVideoAsync.get_download_link
+    print(link)
+    st.video(link)
+
+start()
