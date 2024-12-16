@@ -19,7 +19,7 @@ text2 = st.text_input("niconico")
 # Normal
 def start():
     text2
-    link = niconico_dl.NicoNicoVideoAsync.get_download_link
+    link = niconico_dl.NicoNicoVideoAsync.get_download_link()
     print(link)
     st.video(link)
 
