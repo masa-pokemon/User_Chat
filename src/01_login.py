@@ -23,4 +23,5 @@ def start():
     print(link)
     st.video(link)
 
-start()
+if text2 != text1:
+    start()
