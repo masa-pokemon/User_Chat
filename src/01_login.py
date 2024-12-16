@@ -13,15 +13,3 @@ if text != text1:
         video_file = open("video.mp4", "rb")
         video_bytes = video_file.read()
         st.video(video_bytes)
-
-import niconico_dl
-text2 = st.text_input("niconico")
-# Normal
-def start():
-    text2
-    link = niconico_dl.NicoNicoVideoAsync.get_download_link(url:text2)
-    print(link)
-    st.video(link)
-
-if text2 != text1:
-    start()
