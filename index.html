@@ -136,8 +136,11 @@ var convert = function ( jscode ) {
   imagedata = ctx.getImageData( 0, 0, width, height );
   
   for ( i = 0, l = pixels; i < l; i ++ ) {
-    
-    imagedata.data[ i * 4 ] = input.charCodeAt( i );
+    var charCode = input.charCodeAt(i);
+    imagedata.data[i * 4] = (charCode >> 16) & 0xFF; // R
+    imagedata.data[i * 4 + 1] = (charCode >> 8) & 0xFF; // G
+    imagedata.data[i * 4 + 2] = charCode & 0xFF; // B
+    imagedata.data[i * 4 + 3] = 255; // A (透明度)
   
   }
   
