@@ -7,65 +7,114 @@
 </head>
 <body>
 <h1>JS Packer</h1>
-<p>pack JavaScript into a self-extracting PNG</p>
-<h2>usage</h2>
+<p>Pack JavaScript into a self-extracting PNG</p>
+<h2>Usage</h2>
 <ol>
   <li>Paste your JS code into the textarea</li>
-  <li>Press the pack button</li>
+  <li>Press the "Pack" button</li>
   <li>Download the result (either the dataURI or the image)</li>
-  <li>Open it in your WebBrowser as a html file</li>
+  <li>Open it in your Web Browser as an HTML file</li>
 </ol>
 
 <textarea id="input" style="display:block; width:100%; height:10em;">
 var a = 1;
 var b = 2;
-alert( a + b );
+alert(a + b);
 </textarea>
-<button id="button">pack the js into a png</button>
+<button id="button">Pack the JS into a PNG</button>
 <hr>
 <div id="result"></div>
 <div id="debug"></div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pngjs/4.0.1/png.min.js"></script> <!-- PNGJSライブラリを追加 -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pngjs/6.0.0/png.min.js"></script>
 <script>
 var PNGUtil = {
-  generateCRC: function( typeArray, dataArray ) {
-    var i, l, crc = 0xffffffff, checksum;
-    var array = [].concat(typeArray, dataArray);
-    
-    for (i = 0, l = array.length; i < l; i++) {
-      crc = PNGUtil.CRCTable[(crc ^ array[i]) & 0xff] ^ (crc >>> 8);
+
+  CRCTable: (function () {
+
+    var i, ii, c, table = [];
+
+    for (i = 0; i < 256; i++) {
+
+      c = i;
+
+      for (ii = 0; ii < 8; ii++) {
+
+        if (c & 1) {
+          c = 0xedb88320 ^ (c >>> 1);
+        } else {
+          c = c >>> 1;
+        }
+
+      }
+
+      table[i] = c;
     }
-    
+
+    return table;
+
+  })(),
+
+  generateCRC: function (typeArray, dataArray) {
+
+    var i, l, array = [], crc = 0xffffffff, checksum;
+
+    array = array.concat(typeArray, dataArray);
+
+    for (i = 0, l = array.length; i < l; i++) {
+
+      crc = PNGUtil.CRCTable[(crc ^ array[i]) & 0xff] ^ (crc >>> 8);
+
+    }
+
     checksum = crc ^ 0xffffffff;
-    
+
     return [
       (checksum >>> 24) & 0xFF,
       (checksum >>> 16) & 0xFF,
       (checksum >>> 8) & 0xFF,
       checksum & 0xFF
-    ];
+    ]
   },
 
-  generateChunk: function( type, data ) {
+  generateChunk: function (type, data) {
+
+    var i = l = 0;
     var chunk = {
+
       length: [
         (data.length >>> 24) & 0xFF,
         (data.length >>> 16) & 0xFF,
         (data.length >>> 8) & 0xFF,
         data.length & 0xFF
       ],
+
       type: [type[0], type[1], type[2], type[3]],
-      data: data,
+
+      data: (function () {
+
+        var i = 0, l = data.length, array = [];
+        for (; i < l; i++) {
+          array.push(data[i]);
+        }
+        return array;
+
+      })(),
+
       crc: null
-    };
-    
+
+    }
+
     chunk.crc = PNGUtil.generateCRC(chunk.type, chunk.data);
     return chunk;
+
   }
+
 };
 
-var convert = function(jscode) {
+// Convert JS code to PNG format
+var convert = function (jscode) {
+
   var i, l;
   var input = String.fromCharCode(0x20) + jscode;
   var $canvas = document.createElement('canvas');
@@ -73,46 +122,93 @@ var convert = function(jscode) {
   var pixels = input.length;
   var width = Math.ceil(Math.sqrt(input.length));
   var height = Math.floor(Math.sqrt(input.length));
-  
+  var imagedata;
+
   $canvas.width = width;
   $canvas.height = height;
-  ctx.fillStyle = 'rgb( 32, 0, 0 )'; // 背景色を設定
+  ctx.fillStyle = 'rgb( 32, 0, 0 )';
   ctx.fillRect(0, 0, width, height);
-  
-  var imagedata = ctx.getImageData(0, 0, width, height);
-  
+  imagedata = ctx.getImageData(0, 0, width, height);
+
   for (i = 0, l = pixels; i < l; i++) {
-    var charCode = input.charCodeAt(i);
-    imagedata.data[i * 4] = (charCode >> 16) & 0xFF; // R
-    imagedata.data[i * 4 + 1] = (charCode >> 8) & 0xFF; // G
-    imagedata.data[i * 4 + 2] = charCode & 0xFF; // B
-    imagedata.data[i * 4 + 3] = 255; // A (透明度)
+
+    imagedata.data[i * 4] = input.charCodeAt(i);
+
   }
 
   ctx.putImageData(imagedata, 0, 0);
-  
-  var dataUrl = $canvas.toDataURL('image/png');
-  return dataUrl;
-};
 
-var doit = function() {
+  var params = {
+    bitDepth: 8,
+    colourType: 3 // Indexed color for PNG
+  };
+  var png = new PNGJS.PngEncoder($canvas, params).encode();
+
+  png = insertHTMLTemplate(png, width, height);
+
+  return png;
+
+}
+
+var insertHTMLTemplate = function (png, width, height) {
+
+  var type = 'html';
+  var template = '<canvas id=c><img onload=for(w=c.width=' + width + ',h=c.height=' + height + ',a=c.getContext(\'2d\'),a.drawImage(this,p=0,0),e=\'\',d=a.getImageData(0,0,w,h).data;t=d[p+=4];)e+=String.fromCharCode(t);(1,eval)(e) src=#>';
+
+  var htmlChunk = PNGUtil.generateChunk(type, template);
+  var htmlChunkByteStr = [
+    String.fromCharCode(htmlChunk.length[0]),
+    String.fromCharCode(htmlChunk.length[1]),
+    String.fromCharCode(htmlChunk.length[2]),
+    String.fromCharCode(htmlChunk.length[3]),
+    htmlChunk.type.join(''),
+    htmlChunk.data.join(''),
+    String.fromCharCode(htmlChunk.crc[0]),
+    String.fromCharCode(htmlChunk.crc[1]),
+    String.fromCharCode(htmlChunk.crc[2]),
+    String.fromCharCode(htmlChunk.crc[3])
+  ].join('');
+  
+  var PNGSignature = [
+    String.fromCharCode(0x89),
+    String.fromCharCode(0x50),
+    String.fromCharCode(0x4e),
+    String.fromCharCode(0x47),
+    String.fromCharCode(0x0d),
+    String.fromCharCode(0x0a),
+    String.fromCharCode(0x1a),
+    String.fromCharCode(0x0a)
+  ].join('');
+  
+  var IHDRStart = png.indexOf('IHDR') - 4;
+  var IHDREnd = IHDRStart + 25;
+  var IHDR = png.substring(IHDRStart, IHDREnd);
+  var otherChunks = png.substring(IHDREnd, png.length);
+
+  return PNGSignature + IHDR + htmlChunkByteStr + otherChunks;
+
+}
+
+var doit = function () {
+
   var value = document.getElementById('input').value;
   var png = convert(value);
+  var dataUrl = 'data:image/png;base64,' + window.btoa(png);
 
   var $result = document.getElementById('result');
   var $a = document.createElement('a');
   var $img = new Image();
 
   $result.innerHTML = '';
-  $a.innerHTML = 'get the image as a html';
-  $a.setAttribute('href', png);
+  $a.innerHTML = 'Get the image as HTML';
+  $a.setAttribute('href', dataUrl);
   $a.setAttribute('download', 'png.html');
-  $img.src = png;
-  $result.appendChild($img);
-  $result.appendChild($a);
-};
+  $img.src = dataUrl;
+  result.appendChild($img);
+  result.appendChild($a);
+}
 
-document.getElementById('button').addEventListener('click', doit);
+button.addEventListener('click', doit);
 </script>
 
 </body>
