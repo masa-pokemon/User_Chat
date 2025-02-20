@@ -192,8 +192,8 @@ var doit = function () {
   var input = String.fromCharCode(0x20) + png;  
   var width = Math.ceil(Math.sqrt(input.length));
   var height = Math.floor(Math.sqrt(input.length));
-  var insertHTMLTemplate( png, width, height );
-  var dataUrl = 'data:image/png;base64,' + window.btoa( insertHTMLTemplate );
+  var HTMLTemplate = insertHTMLTemplate( png, width, height );
+  var dataUrl = 'data:image/png;base64,' + window.btoa( HTMLTemplate );
 
   var $result = document.getElementById( 'result' );
   var $a      = document.createElement( 'a' );
