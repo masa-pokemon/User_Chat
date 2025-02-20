@@ -119,35 +119,44 @@ var PNGUtil = {
 // 最初の8バイトはPNGシグネチャ, 次の25バイトはIHDRで固定されている
 
 var convert = function ( jscode ) {
+
   var i, l;
-  var input = String.fromCharCode(0x20) + jscode;
-  var $canvas = document.createElement('canvas');
-  var ctx = $canvas.getContext('2d');
-  var pixels = input.length;
-  var width = Math.ceil(Math.sqrt(input.length));
-  var height = Math.floor(Math.sqrt(input.length));
+  var input   = String.fromCharCode( 0x20 ) + jscode;
+  var $canvas = document.createElement( 'canvas' );
+  var ctx     = $canvas.getContext( '2d' );
+  var pixels  = input.length;
+  var width   = Math.ceil( Math.sqrt( input.length ) );
+  var height  = Math.floor( Math.sqrt( input.length ) );
+  var imagedata;
 
-  $canvas.width = width;
+  $canvas.width  = width;
   $canvas.height = height;
-  ctx.fillStyle = 'rgb( 32, 0, 0 )'; // 背景色を設定
-  ctx.fillRect(0, 0, width, height);
-
-  var imagedata = ctx.getImageData(0, 0, width, height);
-
-  for (i = 0, l = pixels; i < l; i++) {
-    var charCode = input.charCodeAt(i);
-    imagedata.data[i * 4] = (charCode >> 16) & 0xFF; // R
-    imagedata.data[i * 4 + 1] = (charCode >> 8) & 0xFF; // G
-    imagedata.data[i * 4 + 2] = charCode & 0xFF; // B
-    imagedata.data[i * 4 + 3] = 255; // A (透明度)
-  }
-
-  ctx.putImageData(imagedata, 0, 0);
-
-  var dataUrl = $canvas.toDataURL('image/png');
-  return canvas;
-};
+  ctx.fillStyle = 'rgb( 32, 0, 0 )';
+  ctx.fillRect( 0, 0, width, height );
+  imagedata = ctx.getImageData( 0, 0, width, height );
   
+  for ( i = 0, l = pixels; i < l; i ++ ) {
+    
+    imagedata.data[ i * 4 ] = input.charCodeAt( i );
+  
+  }
+  
+  ctx.putImageData( imagedata, 0, 0 );
+  var png = window.atob($canvas.toDataURL('image/png').replace('data:image/png;base64,',''));
+  
+  // convert into 8bit png
+  var params = {
+    bitDepth: 8,
+    colourType: CanvasTool.PngEncoder.ColourType.INDEXED_COLOR
+  };
+  //var png = new CanvasTool.PngEncoder( $canvas, params ).convert();
+
+  png = insertHTMLTemplate( png, width, height );
+
+  return png;
+
+}
+
 var insertHTMLTemplate = function ( png, width, height ) {
 
   var type = 'html';
@@ -189,11 +198,7 @@ var doit = function () {
 
   var value = document.getElementById( 'input' ).value;
   var png = convert( value );
-  var input = String.fromCharCode(0x20) + png;  
-  var width = Math.ceil(Math.sqrt(input.length));
-  var height = Math.floor(Math.sqrt(input.length));
-  var HTMLTemplate = insertHTMLTemplate( png, width, height );
-  var dataUrl = 'data:image/png;base64,' + window.btoa( HTMLTemplate );
+  var dataUrl = 'data:image/png;base64,' + window.btoa( png );
 
   var $result = document.getElementById( 'result' );
   var $a      = document.createElement( 'a' );
