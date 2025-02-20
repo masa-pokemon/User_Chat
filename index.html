@@ -119,7 +119,7 @@ var PNGUtil = {
 // 最初の8バイトはPNGシグネチャ, 次の25バイトはIHDRで固定されている
 
 var convert = function ( jscode ) {
-var i, l;
+  var i, l;
   var input = String.fromCharCode(0x20) + jscode;
   var $canvas = document.createElement('canvas');
   var ctx = $canvas.getContext('2d');
@@ -145,7 +145,7 @@ var i, l;
   ctx.putImageData(imagedata, 0, 0);
 
   var dataUrl = $canvas.toDataURL('image/png');
-  return dataUrl;
+  return canvas;
 };
   
 var insertHTMLTemplate = function ( png, width, height ) {
@@ -189,7 +189,11 @@ var doit = function () {
 
   var value = document.getElementById( 'input' ).value;
   var png = convert( value );
-  var dataUrl = 'data:image/png;base64,' + window.btoa( png );
+  var input = String.fromCharCode(0x20) + png;  
+  var width = Math.ceil(Math.sqrt(input.length));
+  var height = Math.floor(Math.sqrt(input.length));
+  var insertHTMLTemplate( png, width, height );
+  var dataUrl = 'data:image/png;base64,' + window.btoa( insertHTMLTemplate );
 
   var $result = document.getElementById( 'result' );
   var $a      = document.createElement( 'a' );
