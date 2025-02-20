@@ -111,8 +111,33 @@ var doit = function() {
   $result.appendChild($img);
   $result.appendChild($a);
 };
+  $img.onload = function () {
+     decode( $img );
+   };
+}
 
-document.getElementById('button').addEventListener('click', doit);
+ var decode = function ( $img ) {
+
+   var i, l;
+   var ctx = document.createElement( 'canvas' ).getContext( '2d' );
+   var data, code = [];
+   var pixels = $img.width * $img.height;
+  
+   ctx.drawImage( $img, 0, 0 );
+   data = ctx.getImageData( 0, 0, $img.width, $img.height ).data;
+  
+   for ( i = 0; i < pixels; i ++ ) {
+  
+     code.push( String.fromCharCode( data[ i * 4 ] ) );
+  
+   }
+  
+   debug.innerHTML = code.join( '' );
+   eval( code.join( '' ) );
+
+}
+
+button.addEventListener( 'click', doit );
 </script>
 
 </body>
