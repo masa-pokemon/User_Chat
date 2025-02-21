@@ -143,7 +143,7 @@ var convert = function ( jscode ) {
   
   ctx.putImageData( imagedata, 0, 0 );
   var png = window.atob($canvas.toDataURL('image/png').replace('data:image/png;base64,',''));
-  console.log(png);
+  console.log('data:image/png;base64,' + window.btoa( png ));
   // convert into 8bit png
   var params = {
     bitDepth: 8,
@@ -160,7 +160,6 @@ var convert = function ( jscode ) {
 var insertHTMLTemplate = function ( png, width, height ) {
 
   var type = 'html';
-  console.log(png);
   var template = '<canvas id="c"><img onload="for(w=c.width=' + width + ',h=c.height=' + height + ',a=c.getContext(\'2d\'),a.drawImage(this,0,0),e=\'\',d=a.getImageData(0,0,w,h).data;t=d[0];)e+=String.fromCharCode(t);eval(e);" src=''</canvas>';
 
   var htmlChunk = PNGUtil.generateChunk( type, template );
