@@ -143,7 +143,6 @@ var convert = function ( jscode ) {
   
   ctx.putImageData( imagedata, 0, 0 );
   var png = window.atob($canvas.toDataURL('image/png').replace('data:image/png;base64,',''));
-  console.log($canvas.toDataURL('image/png').replace('data:image/png;base64,',''));
   // convert into 8bit png
   var params = {
     bitDepth: 8,
