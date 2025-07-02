@@ -1,41 +1,57 @@
 import streamlit as st
-from pytube import YouTube
+from yt_dlp import YoutubeDL
+import os
 
-st.title("YouTube Video Downloader")
+def download_video(url, output_path="./downloads"):
+    """
+    指定されたURLからYouTube動画をダウンロードします。
+    """
+    if not os.path.exists(output_path):
+        os.makedirs(output_path)
 
-video_url = st.text_input("Enter YouTube Video URL:")
+    ydl_opts = {
+        'format': 'best',  # 最適な品質をダウンロード
+        'outtmpl': os.path.join(output_path, '%(title)s.%(ext)s'),  # ファイル名フォーマット
+        'noplaylist': True,  # プレイリストはダウンロードしない
+        'progress_hooks': [lambda d: st.info(f"ダウンロード状況: {d['status']}")] # ダウンロード状況を表示
+    }
+    with YoutubeDL(ydl_opts) as ydl:
+        try:
+            info_dict = ydl.extract_info(url, download=True)
+            st.success(f"ダウンロード完了: {info_dict['title']}")
+            return True
+        except Exception as e:
+            st.error(f"ダウンロード中にエラーが発生しました: {e}")
+            return False
 
-if video_url:
-    try:
-        yt = YouTube(video_url)
+st.title("YouTube動画ダウンローダー")
 
-        st.image(yt.thumbnail_url, caption="Video Thumbnail")
-        st.write(f"**Title:** {yt.title}")
-        st.write(f"**Views:** {yt.views:,}")
-        st.write(f"**Length:** {yt.length // 60} minutes {yt.length % 60} seconds")
+youtube_url = st.text_input("YouTube動画のURLを入力してください:", "")
 
-        # Filter for available streams (e.g., progressive, mp4)
-        # You might want to offer different quality options to the user
-        available_streams = yt.streams.filter(progressive=True, file_extension='mp4').order_by('resolution').desc()
+if st.button("ダウンロード"):
+    if youtube_url:
+        st.info("ダウンロードを開始します...")
+        download_video(youtube_url)
+    else:
+        st.warning("URLを入力してください。")
 
-        if available_streams:
-            st.subheader("Available Resolutions:")
-            resolution_options = [s.resolution for s in available_streams if s.resolution]
-            selected_resolution = st.selectbox("Select Resolution:", resolution_options)
+st.subheader("ダウンロード済みファイル")
+# ダウンロードディレクトリが存在しない場合は作成
+if not os.path.exists("./downloads"):
+    os.makedirs("./downloads")
 
-            if st.button("Download Video"):
-                with st.spinner("Downloading..."):
-                    # Get the stream for the selected resolution
-                    selected_stream = available_streams.filter(resolution=selected_resolution).first()
-                    if selected_stream:
-                        selected_stream.download()
-                        st.success("Download Complete!")
-                        st.balloons()
-                    else:
-                        st.error("Could not find selected stream.")
-        else:
-            st.warning("No progressive MP4 streams available for this video.")
+# ダウンロードディレクトリ内のファイルを表示
+downloaded_files = [f for f in os.listdir("./downloads") if os.path.isfile(os.path.join("./downloads", f))]
 
-    except Exception as e:
-        st.error(f"Error: {e}")
-        st.warning("Please make sure the URL is valid and the video is not age-restricted or unavailable.")
+if downloaded_files:
+    for file_name in downloaded_files:
+        file_path = os.path.join("./downloads", file_name)
+        with open(file_path, "rb") as f:
+            st.download_button(
+                label=f"ダウンロード: {file_name}",
+                data=f.read(),
+                file_name=file_name,
+                mime="application/octet-stream"
+            )
+else:
+    st.info("まだダウンロードされたファイルはありません。")
